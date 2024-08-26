@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\Role;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,6 +21,9 @@ return new class extends Migration
             $table->string('google_id')->nullable();
             $table->string('url_avatar')->nullable();
             $table->rememberToken();
+            $table->string('user_code')->unique();
+            $table->string('fcm_token');
+            $table->enum('role',Role::getValues())->default(Role::USER);
             $table->timestamps();
         });
 
