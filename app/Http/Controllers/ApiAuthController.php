@@ -98,6 +98,7 @@ class ApiAuthController extends Controller
 
             return [
                 'status' => true,
+                'message' => "Logout successfully"
             ];
         } catch (\Throwable $th) {
             return [
