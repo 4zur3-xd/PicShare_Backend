@@ -10,11 +10,13 @@ use Laravel\Socialite\Facades\Socialite;
 class GoogleAuthController extends Controller
 {
 
-    public function redirect() {
+    public function redirect()
+    {
         return Socialite::driver('google')->redirect();
     }
 
-    public function callback() {
+    public function callback()
+    {
 
         try {
 
@@ -32,11 +34,11 @@ class GoogleAuthController extends Controller
 
                 Auth::login($newUser);
 
-                return redirect()->intended('dashboard');
+                return redirect(route('dashboard', absolute: false));
             }else{
                 Auth::login($user);
 
-                return redirect()->intended('dashboard');
+                return redirect(route('dashboard', absolute: false));
             }
 
         } catch (\Throwable $th) {

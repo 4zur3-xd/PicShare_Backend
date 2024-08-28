@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable,HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -24,6 +24,9 @@ class User extends Authenticatable
         'password',
         'google_id',
         'url_avatar',
+        'user_code',
+        'fcm_code',
+        'role',
     ];
 
     /**
@@ -52,5 +55,25 @@ class User extends Authenticatable
     public function userLog():HasOne
     {
         return $this->hasOne(UserLog::class);
+    }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            "name" => $this->name,
+            "email" => $this->email,
+            "url_avatar" => $this->url_avatar,
+            "role" => $this->role,
+            "email_verified_at" => $this->email_verified_at,
+            "created_at" => $this->created_at,
+            "updated_at" => $this->updated_at,
+            "google_id" => $this->google_id,
+            "user_code" => $this->user_code,
+            "config" => [
+                "language" => $this->language,
+                "fcm_token" => $this->fcm_token,
+            ],
+        ];
     }
 }
