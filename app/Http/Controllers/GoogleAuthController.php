@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleAuthController extends Controller
@@ -21,6 +21,11 @@ class GoogleAuthController extends Controller
         try {
 
             $googleUser = Socialite::driver('google')->user();
+
+            $usedEmail = User::where('email', $googleUser->getEmail())->first();
+            if($usedEmail){
+                return "Sorry, this email has been registered to an account (Try login with this email and password, not \"Continue with Google\"!).";
+            }
 
             $user = User::where('google_id', $googleUser->getId())->first();
 
