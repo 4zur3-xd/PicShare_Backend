@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApiAuthController;
+use App\Http\Controllers\ApiGoogleAuthController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\FirebasePushController;
@@ -11,6 +12,7 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/register', [ApiAuthController::class, 'register']);
 Route::post('/login', [ApiAuthController::class, 'login']);
+Route::post('/auth/callback', [ApiGoogleAuthController::class, 'callback']);
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('/logout', [ApiAuthController::class, 'logout']);
