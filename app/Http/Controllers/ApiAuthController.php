@@ -9,7 +9,6 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Validator;
-use Str;
 
 class ApiAuthController extends Controller
 {
