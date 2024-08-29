@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -50,6 +51,23 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            if (empty($user->user_code)) {
+                do {
+                    $user_code = strtoupper(Str::random(6));
+                } while (User::where('user_code', $user_code)->exists());
+
+                $user->user_code = $user_code;
+            }
+        });
     }
 
     public function userLog():HasOne

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\ResponseHelper;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Validator;
+use Str;
 
 class ApiAuthController extends Controller
 {
@@ -21,10 +23,7 @@ class ApiAuthController extends Controller
             ]);
 
             if($validateUser->fails()){
-                return [
-                    'status' => false,
-                    'errors' => $validateUser->errors(),
-                ];
+                return  ResponseHelper::error(message: $validateUser->errors());
             }else{
                 $user = User::create([
                     'name' => $request->name,
@@ -37,18 +36,15 @@ class ApiAuthController extends Controller
                 event(new Registered($user));
 
                 $authToken = $user->createToken('auth_token')->plainTextToken;
-
+                $userArray = $user->toArray();
+                $userArray['access_token'] = $authToken;
                 return [
                     'status' => true,
-                    'user' => $user,
-                    'access_token' => $authToken,
+                    'user' => $userArray,
                 ];
             }
         } catch (\Throwable $th) {
-            return [
-                'status' => false,
-                'errors' => $th->getMessage(),
-            ];
+            return ResponseHelper::error(message: $th->getMessage());
         }
     }
 
@@ -61,33 +57,26 @@ class ApiAuthController extends Controller
             ]);
 
             if($validateUser->fails()){
-                return [
-                    'status' => false,
-                    'errors' => $validateUser->errors(),
-                ];
+                return 
+                ResponseHelper::error(message: $validateUser->errors());
             }else{
                 $user = User::where('email', $request->email)->first();
 
                 if(!$user || !Hash::check($request->password, $user->password)){
-                    return [
-                        'status' => false,
-                        'errors' => 'Wrong password.'
-                    ];
+                    return 
+                    ResponseHelper::error(message: 'Wrong password.');
                 }else{
                     $authToken = $user->createToken('auth_token')->plainTextToken;
-
+                    $userArray = $user->toArray();
+                    $userArray['access_token'] = $authToken;
                     return [
                         'status' => true,
-                        'user' => $user,
-                        'access_token' => $authToken,
+                        'user' => $userArray,
                     ];
                 }
             }
         } catch (\Throwable $th) {
-            return [
-                'status' => false,
-                'errors' => $th->getMessage(),
-            ];
+            return ResponseHelper::error(message: $th->getMessage());
         }
     }
 
@@ -101,10 +90,8 @@ class ApiAuthController extends Controller
                 'message' => "Logout successfully"
             ];
         } catch (\Throwable $th) {
-            return [
-                'status' => false,
-                'errors' => $th->getMessage(),
-            ];
+            return 
+            ResponseHelper::error(message: $th->getMessage());
         }
     }
 }
