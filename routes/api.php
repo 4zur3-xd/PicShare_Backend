@@ -34,8 +34,8 @@ Route::post('/send_bulk_notification', [FirebasePushController::class, 'sendNoti
 
 Route::middleware('auth:sanctum')->prefix('friend')->group(function () {
     Route::post('make_friend', [FriendController::class, 'store'])->name('friend.store');
-    Route::post('update_friend/{id}', [FriendController::class, 'update']);
-    Route::post('delete_friend/{id}', [FriendController::class, 'destroy'])->name('friend.destroy');
+    Route::get('update_friend/{id}', [FriendController::class, 'update']);
+    Route::get('delete_friend/{id}', [FriendController::class, 'destroy'])->name('friend.destroy');
     Route::get('get_friends', [FriendController::class, 'getFriends'])->name('friend.index');
     Route::get('get_requested_friends', [FriendController::class, 'getRequestedFriends'])->name('friend.requested');
     Route::get('get_sent_friends', [FriendController::class, 'getSentFriends'])->name('friend.sent');
