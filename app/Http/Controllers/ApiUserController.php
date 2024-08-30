@@ -12,15 +12,6 @@ class ApiUserController extends Controller
     public function destroy(Request $request)
     {
         try {
-            $validatePass = Validator::make($request->all(), [
-                'password' => ['required', 'current_password'],
-            ]);
-
-            if($validatePass->fails()){
-                $msg = 'Wrong password.';
-                return ResponseHelper::error(message: $msg);
-            }
-
             auth()->user()->tokens()->delete();
 
             $request->user()->delete();
