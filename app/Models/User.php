@@ -28,6 +28,7 @@ class User extends Authenticatable
         'user_code',
         'fcm_code',
         'role',
+        'email_verified_at',
     ];
 
     /**

@@ -37,6 +37,7 @@ class ApiGoogleAuthController extends Controller
                     'email' => $googleUser['email'],
                     'google_id' => $googleUser['id'],
                     'url_avatar' => $googleUser['picture'],
+                    'email_verified_at' => now(),
                 ]);
 
                 $newUser = $newUser->fresh();

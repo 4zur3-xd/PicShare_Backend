@@ -18,6 +18,7 @@ Route::post('/auth/callback', [ApiGoogleAuthController::class, 'callback']);
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('/logout', [ApiAuthController::class, 'logout']);
     Route::delete('/user/delete', [ApiUserController::class, 'destroy']);
+    Route::patch('/user/update', [ApiUserController::class, 'update']);
 });
 
 // nofitications
