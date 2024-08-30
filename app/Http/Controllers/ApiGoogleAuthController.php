@@ -6,8 +6,6 @@ use App\Models\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Helper\ResponseHelper;
-use Illuminate\Support\Facades\Http;
-use Laravel\Socialite\Facades\Socialite;
 
 class ApiGoogleAuthController extends Controller
 {
