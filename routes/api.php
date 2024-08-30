@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/logout', [ApiAuthController::class, 'logout']);
     Route::delete('/user/delete', [ApiUserController::class, 'destroy']);
     Route::patch('/user/update', [ApiUserController::class, 'update']);
+    Route::patch('/user/password', [ApiUserController::class, 'changePassword']);
 });
 
 // nofitications

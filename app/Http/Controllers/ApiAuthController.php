@@ -22,7 +22,7 @@ class ApiAuthController extends Controller
             ]);
 
             if($validateUser->fails()){
-                return  ResponseHelper::error(message: $validateUser->errors());
+                return ResponseHelper::error(message: $validateUser->errors());
             }else{
                 $user = User::create([
                     'name' => $request->name,
