@@ -31,7 +31,10 @@ class FriendController extends Controller
             $dataCreate=$request->all();
             $dataCreate['user_id']=auth()->user()->id;
             $friend = Friend::create($dataCreate);
-            return ResponseHelper::success(data: "Add friend successfully");
+            if (!$friend || $friend->wasRecentlyCreated === false) {
+                return ResponseHelper::error(message: "Failed to add friend. Please try again.");
+            }
+            return ResponseHelper::success(message: "Add friend successfully");
         } catch (\Throwable $th) {
            return ResponseHelper::error(message: $th->getMessage());
         }
@@ -58,7 +61,7 @@ class FriendController extends Controller
             $friend=Friend::findOrFail($id);
             Gate::authorize('modify',$friend);
             $friend->update($request->all());
-            return ResponseHelper::success(data: "Update friend successfully");
+            return ResponseHelper::success(message: "Update friend successfully");
         } catch (\Throwable $th) {
            return ResponseHelper::error(message: $th->getMessage());
         }
@@ -73,7 +76,7 @@ class FriendController extends Controller
             $friend=Friend::findOrFail($id);
             Gate::authorize('modify',$friend);
             $friend->delete();
-            return ResponseHelper::success(data: "Delete friend successfully");
+            return ResponseHelper::success(message: "Delete friend successfully");
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: $th->getMessage());
         }
