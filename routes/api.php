@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApiAuthController;
 use App\Http\Controllers\ApiGoogleAuthController;
 use App\Http\Controllers\ApiUserController;
+use App\Http\Controllers\ApiUserSearchController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\FirebasePushController;
@@ -21,6 +22,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::delete('/user/delete', [ApiUserController::class, 'destroy']);
     Route::patch('/user/update', [ApiUserController::class, 'update']);
     Route::patch('/user/password', [ApiUserController::class, 'changePassword']);
+    Route::get('/search/{name?}', [ApiUserSearchController::class, 'searchByName']);
+    Route::get('/usercode/{code?}', [ApiUserSearchController::class, 'searchByCode']);
 });
 
 // nofitications
