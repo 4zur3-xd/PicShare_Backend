@@ -27,9 +27,10 @@ class ApiUserController extends Controller
     public function update(Request $request)
     {
         try {
-            $validation = Validator::make($request->all(), [
+                $validation = Validator::make($request->all(), [
                 'name' => ['string', 'max:255'],
                 'url_avatar' => ['string', 'max:255'],
+                'language' => ['string', 'max:255'],
             ]);
 
             if($validation->fails()){
