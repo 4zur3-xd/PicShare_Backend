@@ -11,7 +11,7 @@ class StoreUserLikeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,6 +23,8 @@ class StoreUserLikeRequest extends FormRequest
     {
         return [
             //
+            'user_id' => ['required','integer'],
+            'post_id' => ['required','integer'],
         ];
     }
 }

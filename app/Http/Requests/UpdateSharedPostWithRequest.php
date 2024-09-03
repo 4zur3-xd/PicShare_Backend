@@ -4,14 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePostRequest extends FormRequest
+class UpdateSharedPostWithRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -23,8 +23,6 @@ class StorePostRequest extends FormRequest
     {
         return [
             //
-            'url_image' => ['required', 'image', 'max:2048'],
-            'caption' => [ 'max:255'],
         ];
     }
 }

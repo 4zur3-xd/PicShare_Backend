@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\FirebasePushController;
 use App\Http\Controllers\FriendController;
+use App\Http\Controllers\PostController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -44,3 +45,11 @@ Route::middleware('auth:sanctum')->prefix('friend')->group(function () {
     Route::get('get_sent_friends', [FriendController::class, 'getSentFriends'])->name('friend.sent');
 });
 
+// post
+Route::middleware('auth:sanctum')->prefix('post')->group(function () {
+    Route::post('create', [PostController::class, 'store'])->name('post.store');
+    Route::get('update/{id}', [PostController::class, 'update']);
+    Route::get('delete/{id}', [PostController::class, 'destroy'])->name('post.destroy');
+    Route::get('post_histories', [PostController::class, 'getPostHistories']);
+  
+});

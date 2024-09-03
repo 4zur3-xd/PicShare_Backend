@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\ResponseHelper;
 use App\Models\UserLike;
 use App\Http\Requests\StoreUserLikeRequest;
+use App\Http\Requests\UpdatePostRequest;
 use App\Http\Requests\UpdateUserLikeRequest;
+use App\Models\Post;
 
 class UserLikeController extends Controller
 {
@@ -22,6 +25,31 @@ class UserLikeController extends Controller
     public function store(StoreUserLikeRequest $request)
     {
         //
+        try {
+            // Tạo một UserLike mới
+            $userLike = UserLike::create([
+                'user_id' => auth()->user()->id,
+                'post_id' => $request->post_id,
+            ]);
+
+            if (!$userLike || $userLike->wasRecentlyCreated === false) {
+                return ResponseHelper::error(message: "Failed to create user like. Please try again.");
+            }
+
+            
+            // $post = Post::findOrFail($request->post_id);
+            // $post->increment('like_count'); // Tăng like_count lên 1
+
+
+            $updateRequest = new UpdatePostRequest();
+            $updateRequest->merge(['like_count' => Post::findOrFail($request->post_id)->like_count + 1]);
+            app(PostController::class)->update($updateRequest, $request->post_id);
+
+            return ResponseHelper::success(message: "User like created and post updated successfully");
+        } catch (\Throwable $th) {
+            return ResponseHelper::error(message: $th->getMessage());
+        }
+
     }
 
     /**

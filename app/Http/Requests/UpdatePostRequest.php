@@ -11,7 +11,7 @@ class UpdatePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,6 +23,10 @@ class UpdatePostRequest extends FormRequest
     {
         return [
             //
+            'cmt_count' => ['sometimes','integer'],
+            'like_count' => ['sometimes','integer'],
+            'is_deleted' => ['sometimes','boolean'],
+            
         ];
     }
 }
