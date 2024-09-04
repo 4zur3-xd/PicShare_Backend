@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enum\SharedPostType;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePostRequest extends FormRequest
@@ -25,6 +26,9 @@ class StorePostRequest extends FormRequest
             //
             'url_image' => ['required', 'image', 'max:2048'],
             'caption' => [ 'max:255'],
+            'type' => ['required', 'string'],
+            'shared_with' => ['array'],
+            'shared_with.*' => ['integer', 'exists:users,id'],
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helper\ImageHelper;
 use App\Helper\ResponseHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules;
 
@@ -31,7 +32,7 @@ class ApiUserController extends Controller
             // Validate the request
             $validation = Validator::make($request->all(), [
                 'name' => ['string', 'max:255'],
-                'url_image' => ['nullable', 'image', 'max:2048'],
+                'url_avatar' => ['nullable', 'image', 'max:2048'],
                 'language' => ['string', 'max:255'],
             ]);
     
@@ -40,7 +41,7 @@ class ApiUserController extends Controller
             }
     
             // Handle the image file if it is present
-            $imageFile = $request->file('url_image');
+            $imageFile = $request->file('url_avatar');
             $fullUrl = ImageHelper::saveAndGenerateUrl($imageFile, 'public/images');
     
             // Update the user with new data
@@ -49,7 +50,7 @@ class ApiUserController extends Controller
     
             // If the image URL was updated, replace it in the data array
             if ($fullUrl) {
-                $dataToUpdate['url_image'] = $fullUrl;
+                $dataToUpdate['url_avatar'] = $fullUrl;
             }
     
             // Update user attributes

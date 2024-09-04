@@ -4,6 +4,7 @@ use App\Http\Controllers\ApiAuthController;
 use App\Http\Controllers\ApiGoogleAuthController;
 use App\Http\Controllers\ApiUserController;
 use App\Http\Controllers\ApiUserSearchController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\FirebasePushController;
@@ -48,8 +49,17 @@ Route::middleware('auth:sanctum')->prefix('friend')->group(function () {
 // post
 Route::middleware('auth:sanctum')->prefix('post')->group(function () {
     Route::post('create', [PostController::class, 'store'])->name('post.store');
-    Route::get('update/{id}', [PostController::class, 'update']);
-    Route::get('delete/{id}', [PostController::class, 'destroy'])->name('post.destroy');
+    // Route::get('update/{id}', [PostController::class, 'update']);
+    Route::delete('delete/{id}', [PostController::class, 'destroy'])->name('post.destroy');
     Route::get('post_histories', [PostController::class, 'getPostHistories']);
-  
+    // detail 
+    Route::get('{id}', [PostController::class, 'detail'])->name('post.detail');
+    
+    // comment
+    Route::prefix('{postId}/comments')->group(function () {
+        Route::get('/', [CommentController::class, 'index'])->name('comment.index');
+        Route::post('create', [CommentController::class, 'store'])->name('comment.store');
+        Route::post('{commentId}/replies', [CommentController::class, 'replyToComment'])->name('reply.create');
+    });
+
 });
