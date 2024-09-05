@@ -190,7 +190,41 @@ class PostController extends Controller
 
     public function getUserLike(Request $request, $id)
     {
-        //
+        try {
+            $post = Post::findOrFail($id);
+            Gate::authorize('modifyPost', $post);
+
+            $curUser = $request->user()->id;
+
+            $likers = User::join('user_likes', 'users.id', '=', 'user_likes.user_id')
+                    ->where('user_likes.post_id', $id)
+                    ->where('users.id', '!=', $curUser)
+                    ->select('users.*')
+                    ->get();
+
+            if($likers->isEmpty()){
+                $msg = 'Noone likes =)).';
+                return ResponseHelper::success(message: $msg);
+            }
+
+            $data = [];
+            foreach($likers as $liker){
+                $userData = [
+                    'id' => $liker['id'],
+                    'url_avatar' => $liker['url_avatar'],
+                    'name' => $liker['name'],
+                ];
+
+                array_push($data, $userData);
+            }
+
+            return ResponseHelper::success(data: [
+                'totalItems' => $likers->count(),
+                'user_view' => $data,
+            ]);
+        } catch (\Throwable $th) {
+            return ResponseHelper::error(message: $th->getMessage());
+        }
     }   
 
 
