@@ -227,5 +227,8 @@ class PostController extends Controller
         }
     }   
 
-
+    // public function postReport(Request $request, $id)
+    // {
+    //     $post = Post::findOrFail($id);
+    // }
 }
