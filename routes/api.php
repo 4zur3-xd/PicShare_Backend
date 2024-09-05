@@ -1,15 +1,17 @@
 <?php
 
-use App\Http\Controllers\ApiAuthController;
-use App\Http\Controllers\ApiGoogleAuthController;
-use App\Http\Controllers\ApiUserController;
-use App\Http\Controllers\ApiUserSearchController;
-use App\Http\Controllers\CommentController;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Http\Controllers\FirebasePushController;
-use App\Http\Controllers\FriendController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\FriendController;
+use App\Http\Controllers\ApiAuthController;
+use App\Http\Controllers\ApiUserController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\UserLikeController;
+use App\Http\Controllers\UserViewController;
+use App\Http\Controllers\FirebasePushController;
+use App\Http\Controllers\ApiGoogleAuthController;
+use App\Http\Controllers\ApiUserSearchController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -57,6 +59,9 @@ Route::middleware('auth:sanctum')->prefix('post')->group(function () {
     
     Route::get('{id}/viewers', [PostController::class, 'getUserView']);
     Route::get('{id}/likers', [PostController::class, 'getUserLike']);
+
+    Route::get('{id}/new_viewer', [UserViewController::class, 'store']);
+    Route::get('{id}/new_liker', [UserLikeController::class, 'store']);
     
     // comment
     Route::prefix('{postId}/comments')->group(function () {
