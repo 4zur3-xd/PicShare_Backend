@@ -172,6 +172,7 @@ class PostController extends Controller
                 $userData = [
                     'id' => $viewer['id'],
                     'url_avatar' => $viewer['url_avatar'],
+                    'name' => $viewer['name'],
                 ];
 
                 array_push($data, $userData);
