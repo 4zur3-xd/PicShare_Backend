@@ -22,7 +22,6 @@ class ApiUserSearchController extends Controller
             $result = User::where('name', 'like', '%' . $name . '%')->where('id', '!=', $currUser->id);
             $result = $result->get();
 
-    
             if($result->isEmpty()){
                 $msg = 'No users found.';
                 return ResponseHelper::success(message: $msg);

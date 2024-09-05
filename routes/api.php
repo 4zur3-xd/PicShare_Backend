@@ -55,6 +55,8 @@ Route::middleware('auth:sanctum')->prefix('post')->group(function () {
     // detail 
     Route::get('{id}', [PostController::class, 'detail'])->name('post.detail');
     
+    Route::get('{id}/viewers', [PostController::class, 'getUserView']);
+    
     // comment
     Route::prefix('{postId}/comments')->group(function () {
         Route::get('/', [CommentController::class, 'index'])->name('comment.index');

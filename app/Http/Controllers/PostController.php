@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Enum\SharedPostType;
+use App\Models\Post;
+use App\Models\User;
 use App\Helper\ImageHelper;
+use App\Enum\SharedPostType;
+use Illuminate\Http\Request;
 use App\Helper\ResponseHelper;
+use App\Models\SharedPostWith;
+use Illuminate\Support\Facades\DB;
+use App\Http\Resources\PostResource;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use App\Http\Resources\PostCollection;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
-use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostDetailResource;
-use App\Http\Resources\PostResource;
-use App\Models\Post;
-use App\Models\SharedPostWith;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -153,6 +154,33 @@ class PostController extends Controller
             $post = Post::findOrFail($id);
             Gate::authorize('modifyPost', $post);
 
+            $curUser = $request->user()->id;
+
+            $viewers = User::join('user_views', 'users.id', '=', 'user_views.user_id')
+                    ->where('user_views.post_id', $id)
+                    ->where('users.id', '!=', $curUser)
+                    ->select('users.*')
+                    ->get();
+
+            if($viewers->isEmpty()){
+                $msg = 'No viewers.';
+                return ResponseHelper::success(message: $msg);
+            }
+
+            $data = [];
+            foreach($viewers as $viewer){
+                $userData = [
+                    'id' => $viewer['id'],
+                    'url_avatar' => $viewer['url_avatar'],
+                ];
+
+                array_push($data, $userData);
+            }
+
+            return ResponseHelper::success(data: [
+                'totalItems' => $viewers->count(),
+                'user_view' => $data,
+            ]);
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: $th->getMessage());
         }
