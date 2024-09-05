@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Helper\ResponseHelper;
+use App\Http\Resources\UserSummaryResource;
 
 class ApiUserSearchController extends Controller
 {
@@ -20,13 +21,20 @@ class ApiUserSearchController extends Controller
     
             $result = User::where('name', 'like', '%' . $name . '%')->where('id', '!=', $currUser->id);
             $result = $result->get();
+
     
             if($result->isEmpty()){
                 $msg = 'No users found.';
                 return ResponseHelper::success(message: $msg);
             }
+
+            $data = UserSummaryResource::collection($result);
+
+             return ResponseHelper::success(data: [
+                 'totalItems' => $result->count(),
+                 'users' => $data,
+             ]);
     
-            return ResponseHelper::success(data: $result);
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: $th->getMessage());
         }
@@ -49,8 +57,14 @@ class ApiUserSearchController extends Controller
                 $msg = 'No users found.';
                 return ResponseHelper::success(message: $msg);
             }
+
+            $data = UserSummaryResource::collection($result);
+
+            return ResponseHelper::success(data: [
+                'totalItems' => $result->count(),
+                'users' => $data,
+            ]);
     
-            return ResponseHelper::success(data: $result);
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: $th->getMessage());
         }
