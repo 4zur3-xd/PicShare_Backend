@@ -18,6 +18,7 @@ class UserSummaryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'avatar' => $this->avatar,
+            'user_code' => $this->user_code
         ];
     }
 }
