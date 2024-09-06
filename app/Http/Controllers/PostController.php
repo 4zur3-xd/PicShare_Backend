@@ -180,7 +180,7 @@ class PostController extends Controller
 
             return ResponseHelper::success(data: [
                 'totalItems' => $viewers->count(),
-                'user_view' => $data,
+                'user_views' => $data,
             ]);
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: $th->getMessage());
@@ -192,7 +192,7 @@ class PostController extends Controller
     {
         try {
             $post = Post::findOrFail($id);
-            Gate::authorize('modifyPost', $post);
+            // Gate::authorize('modifyPost', $post);
 
             $curUser = $request->user()->id;
 
@@ -220,7 +220,7 @@ class PostController extends Controller
 
             return ResponseHelper::success(data: [
                 'totalItems' => $likers->count(),
-                'user_view' => $data,
+                'user_likes' => $data,
             ]);
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: $th->getMessage());
