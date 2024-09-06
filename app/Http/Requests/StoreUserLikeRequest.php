@@ -23,8 +23,6 @@ class StoreUserLikeRequest extends FormRequest
     {
         return [
             //
-            'user_id' => ['required','integer'],
-            'post_id' => ['required','integer'],
         ];
     }
 }

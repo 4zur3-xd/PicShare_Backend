@@ -22,34 +22,29 @@ class UserLikeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserLikeRequest $request)
+    public function store(StoreUserLikeRequest $request, $id)
     {
-        //
         try {
-            // Tạo một UserLike mới
             $userLike = UserLike::create([
-                'user_id' => auth()->user()->id,
-                'post_id' => $request->post_id,
+                'user_id' => $request->user()->id,
+                'post_id' => $id,
             ]);
 
             if (!$userLike || $userLike->wasRecentlyCreated === false) {
-                return ResponseHelper::error(message: "Failed to create user like. Please try again.");
+                return ResponseHelper::error(message: "Failed to create liker. Please try again.");
             }
 
-            
-            // $post = Post::findOrFail($request->post_id);
-            // $post->increment('like_count'); // Tăng like_count lên 1
+            $post = Post::findOrFail($id);
+            $post->increment('like_count');
 
+            // $updateRequest = new UpdatePostRequest();
+            // $updateRequest->merge(['like_count' => Post::findOrFail($id)->like_count + 1]);
+            // app(PostController::class)->update($updateRequest, $id);
 
-            $updateRequest = new UpdatePostRequest();
-            $updateRequest->merge(['like_count' => Post::findOrFail($request->post_id)->like_count + 1]);
-            app(PostController::class)->update($updateRequest, $request->post_id);
-
-            return ResponseHelper::success(message: "User like created and post updated successfully");
+            return ResponseHelper::success(message: "Liker created and post updated successfully");
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: $th->getMessage());
         }
-
     }
 
     /**
