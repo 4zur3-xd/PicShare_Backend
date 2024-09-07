@@ -27,7 +27,7 @@ class User extends Authenticatable
         'google_id',
         'url_avatar',
         'user_code',
-        'fcm_code',
+        'fcm_token',
         'role',
         'email_verified_at',
     ];

@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function(){
 });
 
 // nofitications
-Route::post('/set_fcm_token', [FirebasePushController::class, 'setToken']);
+Route::post('/set_fcm_token', [FirebasePushController::class, 'setToken'])->middleware('auth:sanctum');
 
 Route::post('/send_notification', [FirebasePushController::class, 'sendNotification']);
 
