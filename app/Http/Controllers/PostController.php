@@ -230,9 +230,27 @@ class PostController extends Controller
     public function postReport(Request $request, $id)
     {
         try {
+            $data = $request->all();
+
+            if(!isset($data['reason'])){
+                $msg = 'No reason delivered.';
+                return ResponseHelper::error(message: $msg);
+            }
+
+            if($data['reason'] == null){
+                $msg = 'No reason delivered.';
+                return ResponseHelper::error(message: $msg);
+            }
+
             $post = Post::findOrFail($id);
             $user = $request->user();
-            $data = $request->all();
+
+            $checkDup = Report::where('post_id', $post->id)->where('user_reporting', $user->id);
+
+            if($checkDup->count() > 0){
+                $msg = 'You already reported this post.';
+                return ResponseHelper::error(message: $msg);
+            }
 
             $report = Report::create([
                 'post_id' => $post->id,
