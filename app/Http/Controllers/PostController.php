@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\User;
+use App\Models\Report;
 use App\Helper\ImageHelper;
 use App\Enum\SharedPostType;
 use Illuminate\Http\Request;
@@ -187,7 +188,6 @@ class PostController extends Controller
         }
     }
 
-
     public function getUserLike(Request $request, $id)
     {
         try {
@@ -227,8 +227,45 @@ class PostController extends Controller
         }
     }   
 
-    // public function postReport(Request $request, $id)
-    // {
-    //     $post = Post::findOrFail($id);
-    // }
+    public function postReport(Request $request, $id)
+    {
+        try {
+            $data = $request->all();
+
+            if(!isset($data['reason'])){
+                $msg = 'No reason delivered.';
+                return ResponseHelper::error(message: $msg);
+            }
+
+            if($data['reason'] == null){
+                $msg = 'No reason delivered.';
+                return ResponseHelper::error(message: $msg);
+            }
+
+            $post = Post::findOrFail($id);
+            $user = $request->user();
+
+            $checkDup = Report::where('post_id', $post->id)->where('user_reporting', $user->id);
+
+            if($checkDup->count() > 0){
+                $msg = 'You already reported this post.';
+                return ResponseHelper::error(message: $msg);
+            }
+
+            $report = Report::create([
+                'post_id' => $post->id,
+                'reason' => $data['reason'],
+                'reported_user' => $post->user_id,
+                'user_reporting' => $user->id,
+            ]);
+
+            $report = $report->fresh();
+
+            $msg = 'Reported successfully!';
+
+            return ResponseHelper::success(message: $msg, data: $report);
+        } catch (\Throwable $th) {
+            ResponseHelper::error(message: $th->getMessage());
+        }
+    }
 }

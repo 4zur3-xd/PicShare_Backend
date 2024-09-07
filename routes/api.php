@@ -63,7 +63,7 @@ Route::middleware('auth:sanctum')->prefix('post')->group(function () {
     Route::get('{id}/new_viewer', [UserViewController::class, 'store']);
     Route::get('{id}/new_liker', [UserLikeController::class, 'store']);
 
-    // Route::post('{id}/report', [PostController::class, 'postReport']);
+    Route::post('{id}/report', [PostController::class, 'postReport']);
     
     // comment
     Route::prefix('{postId}/comments')->group(function () {
