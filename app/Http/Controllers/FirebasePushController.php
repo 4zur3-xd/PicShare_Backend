@@ -21,7 +21,8 @@ class FirebasePushController extends Controller
 
     public function setToken(Request $request)
     {
-        $token = $request->input('fcm_token');
+        try {
+            $token = $request->input('fcm_token');
         $request->user()->update([
             'fcm_token' => $token,
         ]);
@@ -30,6 +31,12 @@ class FirebasePushController extends Controller
         return response()->json([
             'message' => 'Successfully Updated FCM Token',
         ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                "message" => 'Failed to set fcm: ' . $e->getMessage(),
+            ], 500);
+        }
+       
     }
 
     public function sendNotification(Request $request)
