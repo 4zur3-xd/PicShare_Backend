@@ -28,13 +28,21 @@ class FriendController extends Controller
     {
         //
         try {
-            $dataCreate=$request->all();
-            $dataCreate['user_id']=auth()->user()->id;
+            $dataCreate = $request->all();
+            $dataCreate['user_id'] = auth()->user()->id;
+            
             $friend = Friend::create($dataCreate);
+    
             if (!$friend || $friend->wasRecentlyCreated === false) {
                 return ResponseHelper::error(message: "Failed to add friend. Please try again.");
             }
-            return ResponseHelper::success(message: "Add friend successfully");
+    
+            $friend = Friend::with(['user', 'friend'])->find($friend->id);
+    
+            return ResponseHelper::success(
+                message: "Add friend successfully", 
+                data: new FriendResource($friend)
+            );
         } catch (\Throwable $th) {
            return ResponseHelper::error(message: $th->getMessage());
         }
