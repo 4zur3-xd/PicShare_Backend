@@ -8,7 +8,8 @@ use App\Http\Requests\StoreUserLikeRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Requests\UpdateUserLikeRequest;
 use App\Models\Post;
-
+use App\Models\UserLog;
+use Illuminate\Support\Facades\DB;
 class UserLikeController extends Controller
 {
     /**
@@ -25,6 +26,7 @@ class UserLikeController extends Controller
     public function store(StoreUserLikeRequest $request, $id)
     {
         try {
+            DB::beginTransaction();
             $userLike = UserLike::create([
                 'user_id' => $request->user()->id,
                 'post_id' => $id,
@@ -37,12 +39,16 @@ class UserLikeController extends Controller
             $post = Post::findOrFail($id);
             $post->increment('like_count');
 
-            // $updateRequest = new UpdatePostRequest();
-            // $updateRequest->merge(['like_count' => Post::findOrFail($id)->like_count + 1]);
-            // app(PostController::class)->update($updateRequest, $id);
+             // Find UserLog or create new if not exists
+             $userLog = UserLog::firstOrCreate(
+                ['user_id' => $request->user()->id]
+            );
+            $userLog->increment('total_like');
 
+            DB::commit();
             return ResponseHelper::success(message: "Liker created and post updated successfully");
         } catch (\Throwable $th) {
+            DB::rollback();
             return ResponseHelper::error(message: $th->getMessage());
         }
     }
