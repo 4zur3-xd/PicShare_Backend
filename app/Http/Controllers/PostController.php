@@ -284,4 +284,47 @@ class PostController extends Controller
             ResponseHelper::error(message: $th->getMessage());
         }
     }
+
+
+    public function postsForUser(Request $request){
+        try {
+          // Lấy currentUserId từ request hoặc auth
+          $currentUserId = $request->user()->id;
+        //   $posts = Post::where('user_id', Auth::id())
+        //   ->paginate(10);
+        //   Thực hiện truy vấn
+        $posts = Post::query()
+        ->select('posts.id', 'posts.user_id', 'posts.url_image', 'posts.caption', 'posts.cmt_count', 'posts.like_count', 'posts.is_deleted', 'posts.created_at', 'posts.updated_at')
+        ->leftJoin('shared_post_withs', 'posts.id', '=', 'shared_post_withs.post_id')
+        ->leftJoin('friends', function ($join) use ($currentUserId) {
+            $join->on(function ($query) use ($currentUserId) {
+                $query->where('posts.user_id', '=', 'friends.user_id')
+                      ->where('friends.friend_id', '=', $currentUserId)
+                      ->where('friends.status', '=', 'friend')
+                      ->orWhere(function ($query) use ($currentUserId) {
+                          $query->where('posts.user_id', '=', 'friends.friend_id')
+                                ->where('friends.user_id', '=', $currentUserId)
+                                ->where('friends.status', '=', 'friend');
+                      });
+            });
+        })
+        ->where(function ($query) use ($currentUserId) {
+            $query->where('shared_post_withs.user_id', $currentUserId) // Bài viết chia sẻ với người dùng hiện tại
+                  ->orWhere(function ($query) use ($currentUserId) {
+                      $query->where('friends.friend_id', $currentUserId) // Bài viết chia sẻ với tất cả bạn bè của người dùng hiện tại
+                            ->whereNull('shared_post_withs.post_id');
+                  });
+        })
+        ->orWhere('posts.user_id', $currentUserId) // Bài viết của chính người dùng hiện tại
+        ->distinct()
+        ->orderBy('posts.created_at', 'desc')
+        ->get();
+
+          // Trả về kết quả dưới dạng JSON
+          return ResponseHelper::success(data: $posts);
+        } catch (\Throwable $th) {
+            return ResponseHelper::error(message: $th->getMessage());
+        }
+      
+    }
 }
