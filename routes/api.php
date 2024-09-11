@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\GetReportsController;
+use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
@@ -72,4 +74,9 @@ Route::middleware('auth:sanctum')->prefix('post')->group(function () {
         Route::post('{commentId}/replies', [CommentController::class, 'replyToComment'])->name('reply.create');
     });
 
+});
+
+Route::middleware(['auth:sanctum', AdminMiddleware::class])->prefix('admin')->group(function()
+{
+    Route::get('reports/get', [GetReportsController::class, 'getReports']);
 });
