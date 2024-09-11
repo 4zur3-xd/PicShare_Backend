@@ -12,6 +12,7 @@ class ApiGoogleAuthController extends Controller
     public function callback(Request $request)
     {
         try {
+
             $token = $request->access_token;
 
             $client = new Client();
@@ -40,6 +41,11 @@ class ApiGoogleAuthController extends Controller
                     'email_verified_at' => now(),
                 ]);
 
+                // create UserLog
+                $userLogController = app(UserLogController::class);
+                $userLogController->createUserLog($user);
+
+                // fresh
                 $newUser = $newUser->fresh();
 
                 $authToken = $newUser->createToken('auth_token')->plainTextToken;

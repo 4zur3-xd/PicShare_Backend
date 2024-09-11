@@ -12,6 +12,7 @@ use App\Http\Controllers\UserViewController;
 use App\Http\Controllers\FirebasePushController;
 use App\Http\Controllers\ApiGoogleAuthController;
 use App\Http\Controllers\ApiUserSearchController;
+use App\Http\Controllers\UserLogController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -73,3 +74,6 @@ Route::middleware('auth:sanctum')->prefix('post')->group(function () {
     });
 
 });
+
+// user logs
+Route::get('/user_logs', [UserLogController::class, 'getUserLogs'])->middleware('auth:sanctum');

@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
-use App\Models\User;
-use App\Models\Report;
-use App\Helper\ImageHelper;
 use App\Enum\SharedPostType;
-use Illuminate\Http\Request;
+use App\Helper\ImageHelper;
 use App\Helper\ResponseHelper;
-use App\Models\SharedPostWith;
-use Illuminate\Support\Facades\DB;
-use App\Http\Resources\PostResource;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use App\Http\Resources\PostCollection;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostDetailResource;
+use App\Http\Resources\PostResource;
+use App\Models\Post;
+use App\Models\Report;
+use App\Models\SharedPostWith;
+use App\Models\User;
+use App\Models\UserLog;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -52,13 +53,19 @@ class PostController extends Controller
                 return ResponseHelper::error(message: "Failed to create post. Please try again.");
             }
 
+            // Find UserLog or create new if not exists
+            $userLog = UserLog::firstOrCreate(
+                ['user_id' => $request->user()->id]
+            );
+            $userLog->increment('total_post');
+
             $sharedWith = $dataCreate['shared_with'] ?? [];
             if ($dataCreate['type'] === SharedPostType::GROUP_MEMBERS && !empty($sharedWith)) {
                 foreach ($sharedWith as $friendId) {
-                   SharedPostWith::create([
-                    'post_id' => $post->id,
-                    'user_id' => $friendId,
-                   ]);
+                    SharedPostWith::create([
+                        'post_id' => $post->id,
+                        'user_id' => $friendId,
+                    ]);
                 }
             }
             DB::commit();
@@ -97,15 +104,26 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         //
         try {
+            DB::beginTransaction();
             $post = Post::findOrFail($id);
             Gate::authorize('modifyPost', $post);
+            $likeCount=$post->like_count;
             $post->delete();
+            // Find UserLog or create new if not exists
+            $userLog = UserLog::firstOrCreate(
+                ['user_id' => $request->user()->id]
+            );
+            $userLog->decrement('total_post');
+            $userLog->decrement('total_like',$likeCount);
+            $userLog->increment('total_deleted');
+            DB::commit();
             return ResponseHelper::success(message: "Delete post successfully");
         } catch (\Throwable $th) {
+            DB::rollback();
             return ResponseHelper::error(message: $th->getMessage());
         }
     }
@@ -113,41 +131,39 @@ class PostController extends Controller
     public function getPostHistories(Request $request)
     {
         try {
-            $perPage = $request->get('per_page', 18); 
-    
-            $posts = Post::where('user_id', Auth::id())
-                         ->paginate($perPage);
-        
-            $dataCollection = PostResource::collection($posts);
-        
-             $dataCollection = new PostCollection($posts);
+            $perPage = $request->get('per_page', 18);
 
-             return ResponseHelper::success(data: $dataCollection->toArray($request),message: "Get post histories successfully");
+            $posts = Post::where('user_id', Auth::id())
+                ->paginate($perPage);
+
+            $dataCollection = PostResource::collection($posts);
+
+            $dataCollection = new PostCollection($posts);
+
+            return ResponseHelper::success(data: $dataCollection->toArray($request), message: "Get post histories successfully");
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: $th->getMessage());
         }
     }
 
-    public function detail(Request $request,$id)
+    public function detail(Request $request, $id)
     {
         try {
             $post = Post::with(['comments.user', 'comments.replies.user'])->find($id);
-    
-         
+
             if (!$post) {
                 return ResponseHelper::error(message: 'Post not found.', statusCode: 404);
             }
-    
+
             return ResponseHelper::success(
                 message: 'Post details retrieved successfully.',
                 data: new PostDetailResource($post)
             );
-    
+
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: 'An error occurred: ' . $th->getMessage());
         }
     }
-
 
     public function getUserView(Request $request, $id)
     {
@@ -158,18 +174,18 @@ class PostController extends Controller
             $curUser = $request->user()->id;
 
             $viewers = User::join('user_views', 'users.id', '=', 'user_views.user_id')
-                    ->where('user_views.post_id', $id)
-                    ->where('users.id', '!=', $curUser)
-                    ->select('users.*')
-                    ->get();
+                ->where('user_views.post_id', $id)
+                ->where('users.id', '!=', $curUser)
+                ->select('users.*')
+                ->get();
 
-            if($viewers->isEmpty()){
+            if ($viewers->isEmpty()) {
                 $msg = 'No viewers.';
                 return ResponseHelper::success(message: $msg);
             }
 
             $data = [];
-            foreach($viewers as $viewer){
+            foreach ($viewers as $viewer) {
                 $userData = [
                     'id' => $viewer['id'],
                     'url_avatar' => $viewer['url_avatar'],
@@ -197,18 +213,18 @@ class PostController extends Controller
             $curUser = $request->user()->id;
 
             $likers = User::join('user_likes', 'users.id', '=', 'user_likes.user_id')
-                    ->where('user_likes.post_id', $id)
-                    ->where('users.id', '!=', $curUser)
-                    ->select('users.*')
-                    ->get();
+                ->where('user_likes.post_id', $id)
+                ->where('users.id', '!=', $curUser)
+                ->select('users.*')
+                ->get();
 
-            if($likers->isEmpty()){
+            if ($likers->isEmpty()) {
                 $msg = 'Noone likes =)).';
                 return ResponseHelper::success(message: $msg);
             }
 
             $data = [];
-            foreach($likers as $liker){
+            foreach ($likers as $liker) {
                 $userData = [
                     'id' => $liker['id'],
                     'url_avatar' => $liker['url_avatar'],
@@ -225,19 +241,19 @@ class PostController extends Controller
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: $th->getMessage());
         }
-    }   
+    }
 
     public function postReport(Request $request, $id)
     {
         try {
             $data = $request->all();
 
-            if(!isset($data['reason'])){
+            if (!isset($data['reason'])) {
                 $msg = 'No reason delivered.';
                 return ResponseHelper::error(message: $msg);
             }
 
-            if($data['reason'] == null){
+            if ($data['reason'] == null) {
                 $msg = 'No reason delivered.';
                 return ResponseHelper::error(message: $msg);
             }
@@ -247,7 +263,7 @@ class PostController extends Controller
 
             $checkDup = Report::where('post_id', $post->id)->where('user_reporting', $user->id);
 
-            if($checkDup->count() > 0){
+            if ($checkDup->count() > 0) {
                 $msg = 'You already reported this post.';
                 return ResponseHelper::error(message: $msg);
             }
