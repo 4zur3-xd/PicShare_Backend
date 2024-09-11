@@ -78,5 +78,8 @@ Route::middleware('auth:sanctum')->prefix('post')->group(function () {
 
 Route::middleware(['auth:sanctum', AdminMiddleware::class])->prefix('admin')->group(function()
 {
-    Route::get('reports/get', [GetReportsController::class, 'getReports']);
+    Route::get('reports/get/{page?}', [GetReportsController::class, 'getReports']);
+    Route::get('reports/get_by_post/{id?}', [GetReportsController::class, 'getReportByPost']);
+    Route::get('reports/get_by_user_sent/{id?}', [GetReportsController::class, 'getReportByUserSent']);
+    Route::get('reports/get_by_user/{id?}', [GetReportsController::class, 'getReportByUser']);
 });
