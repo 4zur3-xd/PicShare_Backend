@@ -15,4 +15,12 @@ class UserLog extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    protected $fillable = [
+        'user_id',
+        'total_post',
+        'total_view',
+        'total_like',
+        'total_deleted',
+    ];
 }

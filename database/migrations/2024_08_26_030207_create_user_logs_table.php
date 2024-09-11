@@ -14,10 +14,15 @@ return new class extends Migration
     {
         Schema::create('user_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained()->unique()->cascadeOnDelete();
+            $table->unsignedBigInteger('user_id')->unique(); // one-to-one relationship
+            // Foreign key constraint
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->integer('total_post')->default(0);
             $table->integer('total_view')->default(0);
+            $table->integer('total_like')->default(0);
             $table->integer('total_deleted')->default(0);
+            $table->timestamps();
+
         });
     }
 

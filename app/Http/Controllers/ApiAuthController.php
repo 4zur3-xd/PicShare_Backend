@@ -9,12 +9,13 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\DB;
 class ApiAuthController extends Controller
 {
     public function register(Request $request)
     {
         try {
+            DB::beginTransaction(); 
             $validateUser = Validator::make($request->all(), [
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
@@ -32,7 +33,12 @@ class ApiAuthController extends Controller
 
                 $user = $user->fresh();
 
+                $userLogController = app(UserLogController::class);
+                $userLogController->createUserLog($user);
+
                 event(new Registered($user));
+
+                DB::commit();
 
                 $authToken = $user->createToken('auth_token')->plainTextToken;
                 $userArray = $user->toArray();
@@ -43,6 +49,7 @@ class ApiAuthController extends Controller
                 ];
             }
         } catch (\Throwable $th) {
+            DB::rollback();
             return ResponseHelper::error(message: $th->getMessage());
         }
     }

@@ -14,6 +14,7 @@ use App\Http\Controllers\UserViewController;
 use App\Http\Controllers\FirebasePushController;
 use App\Http\Controllers\ApiGoogleAuthController;
 use App\Http\Controllers\ApiUserSearchController;
+use App\Http\Controllers\UserLogController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -83,3 +84,6 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])->prefix('admin')->gr
     Route::get('reports/get_by_user_sent/{id?}', [GetReportsController::class, 'getReportByUserSent']);
     Route::get('reports/get_by_user/{id?}', [GetReportsController::class, 'getReportByUser']);
 });
+
+// user logs
+Route::get('/user_logs', [UserLogController::class, 'getUserLogs'])->middleware('auth:sanctum');
