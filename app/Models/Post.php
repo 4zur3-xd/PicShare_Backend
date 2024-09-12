@@ -12,7 +12,11 @@ class Post extends Model
     protected $fillable = [
         'user_id',
         'url_image',
-        'caption'
+        'caption',
+        'cmt_count',
+        'like_count',
+        'is_deleted',
+        'type',
     ];
     public function user()
     {
@@ -27,5 +31,14 @@ class Post extends Model
     public function reports()
     {
         return $this->hasMany(Report::class);
+    }
+
+    public function sharedWithUsers()
+    {
+        return $this->belongsToMany(User::class, 'shared_post_withs', 'post_id', 'user_id');
+    }
+    public function userViews()
+    {
+        return $this->hasMany(UserView::class, 'post_id');
     }
 }
