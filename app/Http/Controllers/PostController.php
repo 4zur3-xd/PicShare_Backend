@@ -11,14 +11,13 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostDetailResource;
 use App\Http\Resources\PostResource;
-
 use App\Http\Resources\UserSummaryResource;
-
 use App\Models\Post;
 use App\Models\Report;
 use App\Models\SharedPostWith;
 use App\Models\User;
 use App\Models\UserLog;
+use App\Models\UserView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -115,14 +114,14 @@ class PostController extends Controller
             DB::beginTransaction();
             $post = Post::findOrFail($id);
             Gate::authorize('modifyPost', $post);
-            $likeCount=$post->like_count;
+            $likeCount = $post->like_count;
             $post->delete();
             // Find UserLog or create new if not exists
             $userLog = UserLog::firstOrCreate(
                 ['user_id' => $request->user()->id]
             );
             $userLog->decrement('total_post');
-            $userLog->decrement('total_like',$likeCount);
+            $userLog->decrement('total_like', $likeCount);
             $userLog->increment('total_deleted');
             DB::commit();
             return ResponseHelper::success(message: "Delete post successfully");
@@ -343,26 +342,38 @@ class PostController extends Controller
             $posts = $postsQuery->distinct()->get();
 
             // format posts
-            $formattedPosts = $posts->map(function ($post) {
-                return [
+            $formattedPosts = $posts->map(function ($post) use ($currentUserId) {
+                $formattedPost = [
                     'id' => $post->id,
                     'user' => new UserSummaryResource($post->user),
                     'url_image' => $post->url_image,
                     'caption' => $post->caption,
+                    'user_id' => $post->user_id,
                     'cmt_count' => $post->cmt_count,
                     'like_count' => $post->like_count,
                     'is_deleted' => $post->is_deleted,
                     'type' => $post->type,
                     'created_at' => $post->created_at,
                     'updated_at' => $post->updated_at,
-                    'user_views' => $post->userViews->map(function ($userView) {
+                ];
+            
+                // If the current user is the owner of the post, add user_views
+                if ($post->user_id == $currentUserId) {
+                   
+                    $userViews = UserView::where('post_id', $post->id)->get();
+            
+                    $formattedUserViews = $userViews->map(function ($userView) {
                         return [
                             'user_id' => $userView->user_id,
-                            'url_avatar' => $userView->user->url_avatar,
-                            'name' => $userView->user->name,
+                            'post_id' => $userView->post_id,
                         ];
-                    }),
-                ];
+                    });
+            
+                    // Add key user_views to post
+                    $formattedPost['user_views'] = $formattedUserViews;
+                }
+            
+                return $formattedPost;
             });
 
             // format response
