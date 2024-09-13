@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\SharedPostType;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,6 +21,7 @@ return new class extends Migration
             $table->integer('cmt_count')->default(0);
             $table->integer('like_count')->default(0);
             $table->boolean('is_deleted')->default(false);
+            $table->enum('type', SharedPostType::getValues())->default(SharedPostType::ALL_FRIENDS);
             $table->timestamps();
         });
     }

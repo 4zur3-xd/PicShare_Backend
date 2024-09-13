@@ -57,6 +57,7 @@ Route::middleware('auth:sanctum')->prefix('post')->group(function () {
     // Route::get('update/{id}', [PostController::class, 'update']);
     Route::delete('delete/{id}', [PostController::class, 'destroy'])->name('post.destroy');
     Route::get('post_histories', [PostController::class, 'getPostHistories']);
+    Route::get('posts_for_user', [PostController::class, 'postsForUser']);
     // detail 
     Route::get('{id}', [PostController::class, 'detail'])->name('post.detail');
     
@@ -67,6 +68,8 @@ Route::middleware('auth:sanctum')->prefix('post')->group(function () {
     Route::get('{id}/new_liker', [UserLikeController::class, 'store']);
 
     Route::post('{id}/report', [PostController::class, 'postReport']);
+
+    
     
     // comment
     Route::prefix('{postId}/comments')->group(function () {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\FriendStatus;
 use App\Enum\SharedPostType;
 use App\Helper\ImageHelper;
 use App\Helper\ResponseHelper;
@@ -10,6 +11,7 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostDetailResource;
 use App\Http\Resources\PostResource;
+use App\Http\Resources\UserSummaryResource;
 use App\Models\Post;
 use App\Models\Report;
 use App\Models\SharedPostWith;
@@ -111,14 +113,14 @@ class PostController extends Controller
             DB::beginTransaction();
             $post = Post::findOrFail($id);
             Gate::authorize('modifyPost', $post);
-            $likeCount=$post->like_count;
+            $likeCount = $post->like_count;
             $post->delete();
             // Find UserLog or create new if not exists
             $userLog = UserLog::firstOrCreate(
                 ['user_id' => $request->user()->id]
             );
             $userLog->decrement('total_post');
-            $userLog->decrement('total_like',$likeCount);
+            $userLog->decrement('total_like', $likeCount);
             $userLog->increment('total_deleted');
             DB::commit();
             return ResponseHelper::success(message: "Delete post successfully");
@@ -149,7 +151,7 @@ class PostController extends Controller
     public function detail(Request $request, $id)
     {
         try {
-            $post = Post::with(['comments.user', 'comments.replies.user'])->find($id);
+            $post = Post::with(['user', 'comments.user', 'comments.replies.user'])->find($id);
 
             if (!$post) {
                 return ResponseHelper::error(message: 'Post not found.', statusCode: 404);
@@ -283,5 +285,114 @@ class PostController extends Controller
         } catch (\Throwable $th) {
             ResponseHelper::error(message: $th->getMessage());
         }
+    }
+
+    public function postsForUser(Request $request)
+    {
+        try {
+            $currentUserId = $request->user()->id;
+            $friendId = $request->query('friend_id');
+
+            $postsQuery = Post::query()
+                ->select('posts.id', 'posts.user_id', 'posts.url_image', 'posts.caption', 'posts.cmt_count', 'posts.like_count', 'posts.is_deleted', 'posts.type', 'posts.created_at', 'posts.updated_at')
+                ->with('user') // Eager load user information
+                ->where(function ($query) use ($currentUserId) {
+
+                    // Get posts from current user
+                    $query->where('posts.user_id', $currentUserId);
+
+                    // Get posts with type 'all_friends' and current user is friend of the poster
+                    $query->orWhere(function ($query) use ($currentUserId) {
+                        $query->where('posts.type', SharedPostType::ALL_FRIENDS)
+                            ->whereExists(function ($subQuery) use ($currentUserId) {
+                                $subQuery->select(DB::raw(1))
+                                    ->from('friends')
+                                    ->where(function ($friendQuery) use ($currentUserId) {
+                                        $friendQuery->whereColumn('friends.user_id', 'posts.user_id')
+                                            ->where('friends.friend_id', $currentUserId)
+                                            ->where('friends.status', FriendStatus::FRIEND)
+                                            ->orWhere(function ($friendQuery) use ($currentUserId) {
+                                                $friendQuery->whereColumn('friends.friend_id', 'posts.user_id')
+                                                    ->where('friends.user_id', $currentUserId)
+                                                    ->where('friends.status', FriendStatus::FRIEND);
+                                            });
+                                    });
+                            });
+                    });
+
+                    // Get posts with type 'group_member' and shared with current user
+                    $query->orWhere(function ($query) use ($currentUserId) {
+                        $query->where('posts.type', SharedPostType::GROUP_MEMBERS)
+                            ->whereExists(function ($subQuery) use ($currentUserId) {
+                                $subQuery->select(DB::raw(1))
+                                    ->from('shared_post_withs')
+                                    ->whereColumn('shared_post_withs.post_id', 'posts.id')
+                                    ->where('shared_post_withs.user_id', $currentUserId);
+                            });
+                    });
+                })
+                ->orderBy('posts.created_at', 'desc');
+
+            // If there is a filter for a specific friend
+            if ($friendId) {
+                $postsQuery->where('posts.user_id', $friendId);
+            }
+
+            $posts = $postsQuery->distinct()->get();
+
+            // format posts
+            $formattedPosts = $posts->map(function ($post) use ($currentUserId) {
+                $formattedPost = [
+                    'id' => $post->id,
+                    'user' => new UserSummaryResource($post->user),
+                    'url_image' => $post->url_image,
+                    'caption' => $post->caption,
+                    'user_id' => $post->user_id,
+                    'cmt_count' => $post->cmt_count,
+                    'like_count' => $post->like_count,
+                    'is_deleted' => $post->is_deleted,
+                    'type' => $post->type,
+                    'created_at' => $post->created_at,
+                    'updated_at' => $post->updated_at,
+                ];
+
+                // If the current user is the owner of the post, add user_views
+                if ($post->user_id == $currentUserId) {
+                    $formattedPost['user_views'] = $this->getUserViewsData($post->id, $currentUserId);
+                }
+
+                return $formattedPost;
+            });
+
+            // format response
+            $response = [
+                'totalItems' => $formattedPosts->count(),
+                'posts' => $formattedPosts,
+            ];
+            return ResponseHelper::success(data: $response);
+        } catch (\Throwable $th) {
+            return ResponseHelper::error(message: $th->getMessage());
+        }
+
+    }
+    public function getUserViewsData($postId, $currentUserId)
+    {
+        // Fetch user views for a specific post
+        $viewers = User::join('user_views', 'users.id', '=', 'user_views.user_id')
+            ->where('user_views.post_id', $postId)
+            ->where('users.id', '!=', $currentUserId)
+            ->select('users.id', 'users.url_avatar', 'users.name')
+            ->get();
+
+        $formattedUserViews = [];
+        foreach ($viewers as $viewer) {
+            $formattedUserViews[] = [
+                'id' => $viewer->id,
+                'url_avatar' => $viewer->url_avatar,
+                'name' => $viewer->name,
+            ];
+        }
+
+        return $formattedUserViews;
     }
 }
