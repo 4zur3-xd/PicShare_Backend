@@ -17,7 +17,6 @@ use App\Models\Report;
 use App\Models\SharedPostWith;
 use App\Models\User;
 use App\Models\UserLog;
-use App\Models\UserView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -152,7 +151,7 @@ class PostController extends Controller
     public function detail(Request $request, $id)
     {
         try {
-            $post = Post::with(['user','comments.user', 'comments.replies.user'])->find($id);
+            $post = Post::with(['user', 'comments.user', 'comments.replies.user'])->find($id);
 
             if (!$post) {
                 return ResponseHelper::error(message: 'Post not found.', statusCode: 404);
@@ -356,23 +355,12 @@ class PostController extends Controller
                     'created_at' => $post->created_at,
                     'updated_at' => $post->updated_at,
                 ];
-            
+
                 // If the current user is the owner of the post, add user_views
                 if ($post->user_id == $currentUserId) {
-                   
-                    $userViews = UserView::where('post_id', $post->id)->get();
-            
-                    $formattedUserViews = $userViews->map(function ($userView) {
-                        return [
-                            'user_id' => $userView->user_id,
-                            'post_id' => $userView->post_id,
-                        ];
-                    });
-            
-                    // Add key user_views to post
-                    $formattedPost['user_views'] = $formattedUserViews;
+                    $formattedPost['user_views'] = $this->getUserViewsData($post->id, $currentUserId);
                 }
-            
+
                 return $formattedPost;
             });
 
@@ -386,5 +374,25 @@ class PostController extends Controller
             return ResponseHelper::error(message: $th->getMessage());
         }
 
+    }
+    public function getUserViewsData($postId, $currentUserId)
+    {
+        // Fetch user views for a specific post
+        $viewers = User::join('user_views', 'users.id', '=', 'user_views.user_id')
+            ->where('user_views.post_id', $postId)
+            ->where('users.id', '!=', $currentUserId)
+            ->select('users.id', 'users.url_avatar', 'users.name')
+            ->get();
+
+        $formattedUserViews = [];
+        foreach ($viewers as $viewer) {
+            $formattedUserViews[] = [
+                'id' => $viewer->id,
+                'url_avatar' => $viewer->url_avatar,
+                'name' => $viewer->name,
+            ];
+        }
+
+        return $formattedUserViews;
     }
 }
