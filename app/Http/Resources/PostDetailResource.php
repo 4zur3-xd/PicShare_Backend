@@ -24,6 +24,7 @@ class PostDetailResource extends JsonResource
             'is_deleted' => $this->is_deleted,
             'cmt_count' => $this->comments->count(),
             'userID' => $this->user_id,
+            'type'=> $this->type,
             'user' => new UserSummaryResource($this->whenLoaded('user')),
             'listCmt' => CommentResource::collection($this->whenLoaded('comments')),
         ];
