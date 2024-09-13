@@ -152,7 +152,7 @@ class PostController extends Controller
     public function detail(Request $request, $id)
     {
         try {
-            $post = Post::with(['comments.user', 'comments.replies.user'])->find($id);
+            $post = Post::with(['user','comments.user', 'comments.replies.user'])->find($id);
 
             if (!$post) {
                 return ResponseHelper::error(message: 'Post not found.', statusCode: 404);
