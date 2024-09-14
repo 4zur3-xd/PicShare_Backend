@@ -67,7 +67,7 @@ Route::middleware('auth:sanctum')->prefix('post')->group(function () {
     Route::get('{id}/new_viewer', [UserViewController::class, 'store']);
     Route::get('{id}/new_liker', [UserLikeController::class, 'store']);
 
-    Route::delete('likers/{id}', [UserLikeController::class, 'destroy']);
+    Route::delete('{id}/dislike_post', [UserLikeController::class, 'destroy']);
 
     Route::post('{id}/report', [PostController::class, 'postReport']);
 

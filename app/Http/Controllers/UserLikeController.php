@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Helper\ResponseHelper;
-use App\Models\UserLike;
 use App\Http\Requests\StoreUserLikeRequest;
-use App\Http\Requests\UpdatePostRequest;
 use App\Http\Requests\UpdateUserLikeRequest;
 use App\Models\Post;
+use App\Models\UserLike;
 use App\Models\UserLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -42,8 +41,8 @@ class UserLikeController extends Controller
             $post = Post::findOrFail($id);
             $post->increment('like_count');
 
-             // Find UserLog or create new if not exists
-             $userLog = UserLog::firstOrCreate(
+            // Find UserLog or create new if not exists
+            $userLog = UserLog::firstOrCreate(
                 ['user_id' => $post->user_id]
             );
             $userLog->increment('total_like');
@@ -80,33 +79,30 @@ class UserLikeController extends Controller
         try {
             $validateUser = Validator::make($request->all(), [
                 'user_id' => ['required', 'integer'],
-                'post_id' => ['required', 'integer'],
             ]);
 
             if ($validateUser->fails()) {
                 return ResponseHelper::error(message: $validateUser->errors()->first());
             }
 
-            
-            DB::beginTransaction();
-
-            
-            $userLike = UserLike::findOrFail($id);
+            $userId = $request->input('user_id');
+            // Find and delete the UserLike based on user_id and post_id
+            $userLike = UserLike::where('user_id', $request->user()->id)
+                ->where('post_id', $id)
+                ->firstOrFail();
             $userLike->delete();
 
-            $postId= $request->input('post_id');
-            $userId= $request->input('user_id');
-            $post = Post::findOrFail($postId);
+            $post = Post::findOrFail($id);
             $post->decrement('like_count');
 
-             // Find UserLog or create new if not exists
-             $userLog = UserLog::firstOrCreate(
+            // Find UserLog or create new if not exists
+            $userLog = UserLog::firstOrCreate(
                 ['user_id' => $userId]
             );
             $userLog->decrement('total_like');
 
             DB::commit();
-            return ResponseHelper::success(message: "Updated successfully");    
+            return ResponseHelper::success(message: "Updated successfully");
         } catch (\Throwable $th) {
             DB::rollback();
             return ResponseHelper::error(message: $th->getMessage());
