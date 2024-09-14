@@ -216,7 +216,7 @@ class PostController extends Controller
 
             $likers = User::join('user_likes', 'users.id', '=', 'user_likes.user_id')
                 ->where('user_likes.post_id', $id)
-                ->where('users.id', '!=', $curUser)
+            // ->where('users.id', '!=', $curUser)
                 ->select('users.*')
                 ->get();
 
@@ -361,6 +361,9 @@ class PostController extends Controller
                     $formattedPost['user_views'] = $this->getUserViewsData($post->id, $currentUserId);
                 }
 
+                // Add user_likes to the post
+                $formattedPost['user_likes'] = $this->getUserLikes($post->id);
+
                 return $formattedPost;
             });
 
@@ -394,5 +397,28 @@ class PostController extends Controller
         }
 
         return $formattedUserViews;
+    }
+
+    private function getUserLikes($postId)
+    {
+        $likers = User::join('user_likes', 'users.id', '=', 'user_likes.user_id')
+            ->where('user_likes.post_id', $postId)
+            ->select('users.*')
+            ->get();
+
+        if ($likers->isEmpty()) {
+            return [];
+        }
+
+        $data = [];
+        foreach ($likers as $liker) {
+            $data[] = [
+                'id' => $liker['id'],
+                'url_avatar' => $liker['url_avatar'],
+                'name' => $liker['name'],
+            ];
+        }
+
+        return $data;
     }
 }
