@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\GetReportsController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\BanStatusMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
@@ -18,13 +19,13 @@ use App\Http\Controllers\UserLogController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware(['auth:sanctum', BanStatusMiddleware::class]);
 
 Route::post('/register', [ApiAuthController::class, 'register']);
 Route::post('/login', [ApiAuthController::class, 'login']);
 Route::post('/auth/callback', [ApiGoogleAuthController::class, 'callback']);
 
-Route::middleware('auth:sanctum')->group(function(){
+Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->group(function(){
     Route::get('/logout', [ApiAuthController::class, 'logout']);
     Route::delete('/user/delete', [ApiUserController::class, 'destroy']);
     Route::patch('/user/update', [ApiUserController::class, 'update']);
@@ -34,7 +35,7 @@ Route::middleware('auth:sanctum')->group(function(){
 });
 
 // nofitications
-Route::post('/set_fcm_token', [FirebasePushController::class, 'setToken'])->middleware('auth:sanctum');
+Route::post('/set_fcm_token', [FirebasePushController::class, 'setToken'])->middleware(['auth:sanctum', BanStatusMiddleware::class]);
 
 Route::post('/send_notification', [FirebasePushController::class, 'sendNotification']);
 
@@ -42,7 +43,7 @@ Route::post('/send_bulk_notification', [FirebasePushController::class, 'sendNoti
 
 // friends
 
-Route::middleware('auth:sanctum')->prefix('friend')->group(function () {
+Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('friend')->group(function () {
     Route::post('make_friend', [FriendController::class, 'store'])->name('friend.store');
     Route::get('update_friend/{id}', [FriendController::class, 'update']);
     Route::get('delete_friend/{id}', [FriendController::class, 'destroy'])->name('friend.destroy');
@@ -52,7 +53,7 @@ Route::middleware('auth:sanctum')->prefix('friend')->group(function () {
 });
 
 // post
-Route::middleware('auth:sanctum')->prefix('post')->group(function () {
+Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('post')->group(function () {
     Route::post('create', [PostController::class, 'store'])->name('post.store');
     // Route::get('update/{id}', [PostController::class, 'update']);
     Route::delete('delete/{id}', [PostController::class, 'destroy'])->name('post.destroy');
@@ -82,7 +83,7 @@ Route::middleware('auth:sanctum')->prefix('post')->group(function () {
 
 });
 
-Route::middleware(['auth:sanctum', AdminMiddleware::class])->prefix('admin')->group(function()
+Route::middleware(['auth:sanctum', AdminMiddleware::class, BanStatusMiddleware::class])->prefix('admin')->group(function()
 {
     Route::get('reports/get/{page?}', [GetReportsController::class, 'getReports']);
     Route::get('reports/get_by_post/{id?}', [GetReportsController::class, 'getReportByPost']);
@@ -91,4 +92,4 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])->prefix('admin')->gr
 });
 
 // user logs
-Route::get('/user_logs', [UserLogController::class, 'getUserLogs'])->middleware('auth:sanctum');
+Route::get('/user_logs', [UserLogController::class, 'getUserLogs'])->middleware(['auth:sanctum', BanStatusMiddleware::class]);
