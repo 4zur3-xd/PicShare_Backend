@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helper\ResponseHelper;
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Resources\CommentResource;
+use App\Http\Resources\ReplyResource;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\Reply;
@@ -49,7 +50,11 @@ class CommentController extends Controller
             $post = Post::findOrFail($id);
             $post->increment('cmt_count');
             DB::commit();
-            return ResponseHelper::success(message: "Add comment successfully", data: $comment, statusCode: 201);
+
+            // load relationships
+            $comment->load('user', 'replies');
+           $commentResponse=new CommentResource($comment);
+                return ResponseHelper::success(message: "Add comment successfully", data: $commentResponse, statusCode: 201);
         } catch (\Throwable $th) {
             DB::rollBack();
             return ResponseHelper::error(message: $th->getMessage());
@@ -74,13 +79,17 @@ class CommentController extends Controller
             // Load the comment that the reply is associated with, including its replies
             $comment = Comment::with('replies')->find($comment_id);
 
+            
             if (!$comment) {
                 return ResponseHelper::error(message: 'Comment not found.');
             }
 
+            // load relationships
+            $reply->load('user');
+            $replyResource = new ReplyResource($reply);
             // Return a success response with comment and reply data
             return ResponseHelper::success(message: 'Reply created successfully.', data: 
-                 $comment,
+                 $replyResource,
             );
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: 'An error occurred: ' . $th->getMessage());
