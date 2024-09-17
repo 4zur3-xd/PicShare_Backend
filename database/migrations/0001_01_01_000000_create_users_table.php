@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('fcm_token')->nullable();            // Temporarily set nullable
             $table->enum('role', Role::getValues())->default(Role::USER);
             $table->enum('language', Language::getValues())->default(Language::EN);
+            $table->tinyInteger('status')->default(1)->comment('1: active; 0: banned;');
             $table->timestamps();
         });
 

@@ -30,6 +30,7 @@ class User extends Authenticatable
         'fcm_token',
         'role',
         'email_verified_at',
+        'status',
     ];
 
     /**
@@ -87,6 +88,7 @@ class User extends Authenticatable
             "updated_at" => $this->updated_at,
             "google_id" => $this->google_id,
             "user_code" => $this->user_code,
+            "ban_status" => $this->status,
             "config" => [
                 "language" => $this->language,
                 "fcm_token" => $this->fcm_token,
