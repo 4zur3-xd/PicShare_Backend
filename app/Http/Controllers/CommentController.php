@@ -53,7 +53,7 @@ class CommentController extends Controller
 
             // load relationships
             $comment->load('user', 'replies');
-           $commentResponse=new CommentResource($comment);
+            $commentResponse=new CommentResource($comment);
                 return ResponseHelper::success(message: "Add comment successfully", data: $commentResponse, statusCode: 201);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -61,7 +61,7 @@ class CommentController extends Controller
         }
     }
 
-    public function replyToComment(Request $request,$comment_id)
+    public function replyToComment(Request $request,$id,$comment_id)
     {
         try {
             // Validate the request
@@ -78,8 +78,8 @@ class CommentController extends Controller
             ]);
             // Load the comment that the reply is associated with, including its replies
             $comment = Comment::with('replies')->find($comment_id);
-
-            
+            $post = Post::findOrFail($id);
+            $post->increment('cmt_count');
             if (!$comment) {
                 return ResponseHelper::error(message: 'Comment not found.');
             }
