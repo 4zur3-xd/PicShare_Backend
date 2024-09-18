@@ -24,7 +24,7 @@ class ApiGoogleAuthController extends Controller
                 return ResponseHelper::error(message: $msg);
             }
 
-            $usedEmail = User::where('email', $googleUser['email'])->first();
+            $usedEmail = User::where('email', $googleUser['email'])->where('google_id', null)->first();
             if($usedEmail){
                 $msg = "Sorry, this email has been registered to an account (Try login with this email and password, not \"Continue with Google\"!).";
                 return ResponseHelper::error(message: $msg);

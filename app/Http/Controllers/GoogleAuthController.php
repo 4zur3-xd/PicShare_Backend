@@ -22,7 +22,7 @@ class GoogleAuthController extends Controller
 
             $googleUser = Socialite::driver('google')->user();
 
-            $usedEmail = User::where('email', $googleUser->getEmail())->first();
+            $usedEmail = User::where('email', $googleUser->getEmail())->where('google_id', null)->first();
             if($usedEmail){
                 return "Sorry, this email has been registered to an account (Try login with this email and password, not \"Continue with Google\"!).";
             }
