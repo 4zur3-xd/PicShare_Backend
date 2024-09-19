@@ -15,6 +15,7 @@ use App\Http\Controllers\UserViewController;
 use App\Http\Controllers\FirebasePushController;
 use App\Http\Controllers\ApiGoogleAuthController;
 use App\Http\Controllers\ApiUserSearchController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserLogController;
 
 Route::get('/user', function (Request $request) {
@@ -93,3 +94,9 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class, BanStatusMiddleware::
 
 // user logs
 Route::get('/user_logs', [UserLogController::class, 'getUserLogs'])->middleware(['auth:sanctum', BanStatusMiddleware::class]);
+
+// notifications
+Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('notifications')->group(function (){
+    Route::get('/', [NotificationController::class, 'getNotifications']);
+    Route::post('/update_unseen_notification/{id}', [NotificationController::class, 'update']);
+});
