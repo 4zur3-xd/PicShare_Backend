@@ -31,16 +31,12 @@
                         <li><a class="dropdown-item" href="{{ route('register') }}">Register</a></li>
                     </ul>
                 </li>
-            @elseif (auth()->user()->role == 'admin')
+            @elseif (auth()->user()->role == 'user' || auth()->user()->status == 0)
                 <li class="nav-item dropdown" style="list-style-type: none;">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Hi, {{ auth()->user()->name }}!
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">Admin Dashboard</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
                         <li>
                             <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 Logout
@@ -54,6 +50,10 @@
                         Hi, {{ auth()->user()->name }}!
                     </a>
                     <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">Admin Dashboard</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li>
                             <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 Logout
@@ -75,6 +75,9 @@
         @if (!auth()->user())
             <h3>Please login first!</h3>
             <p>Admin account required.</p>
+        @elseif (auth()->user()->status == 0)
+            <h3>Access Denied!</h3>
+            <p>This account has been banned! Mail to abcxyz@gmail.com for information or to protest the ban.</p>
         @elseif (auth()->user()->role == 'admin')
             <h3>Welcome back, {{ auth()->user()->name }}!</h3>
         @else

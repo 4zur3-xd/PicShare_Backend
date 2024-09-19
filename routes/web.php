@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\WebMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,19 +15,19 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', WebMiddleware::class])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', function () {
-        return 'Not available at the moment!';
-    })->name('profile.edit');
-    Route::patch('/profile', function () {
-        return 'Not available at the moment!';
-    })->name('profile.update');
-    Route::delete('/profile', function () {
-        return 'Not available at the moment!';
-    })->name('profile.destroy');
-});
+// Route::middleware('auth')->group(function () {
+//     Route::get('/profile', function () {
+//         return 'Not available at the moment!';
+//     })->name('profile.edit');
+//     Route::patch('/profile', function () {
+//         return 'Not available at the moment!';
+//     })->name('profile.update');
+//     Route::delete('/profile', function () {
+//         return 'Not available at the moment!';
+//     })->name('profile.destroy');
+// });
 
 Route::get('auth/google', [GoogleAuthController::class, 'redirect'])->name('google-auth');
 Route::get('auth/callback', [GoogleAuthController::class, 'callback']);
