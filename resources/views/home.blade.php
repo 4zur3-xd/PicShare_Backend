@@ -34,7 +34,12 @@
             @elseif (auth()->user()->role == 'user' || auth()->user()->status == 0)
                 <li class="nav-item dropdown" style="list-style-type: none;">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Hi, {{ auth()->user()->name }}!
+                        @if (auth()->user()->url_avatar)
+                            <img src="{{ auth()->user()->url_avatar }}" width="35px" height="35px" style="border-radius: 50%;">
+                        @else
+                            <img src="{{ asset('images/blank-avatar.jpg') }}" width="35px" height="35px" style="border-radius: 50%;">
+                        @endif
+                        {{ auth()->user()->name }}
                     </a>
                     <ul class="dropdown-menu">
                         <li>
@@ -47,10 +52,15 @@
             @else
                 <li class="nav-item dropdown" style="list-style-type: none;">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Hi, {{ auth()->user()->name }}!
+                        @if (auth()->user()->url_avatar)
+                            <img src="{{ auth()->user()->url_avatar }}" width="35px" height="35px" style="border-radius: 50%;">
+                        @else
+                            <img src="{{ asset('images/blank-avatar.jpg') }}" width="35px" height="35px" style="border-radius: 50%;">
+                        @endif
+                        {{ auth()->user()->name }}
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">Admin Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
