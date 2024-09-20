@@ -17,9 +17,11 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('content')->nullable();
+            $table->string('title')->default('');
             $table->boolean('is_seen')->default(false);
-            $table->string('link_to')->nullable();
+            $table->text('link_to')->nullable();
             $table->enum('notification_type',NotificationType::getValues())->default(NotificationType::USER);
+            $table->foreignId(column: 'sender_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Enum\FriendStatus;
 use App\Enum\FriendType;
 use App\Enum\NotificationPayloadType;
+use App\Enum\NotificationType;
+use App\Helper\LinkToHelper;
 use App\Helper\NotificationHelper;
 use App\Helper\ResponseHelper;
 use App\Models\Friend;
 use App\Http\Requests\StoreFriendRequest;
+use App\Http\Requests\StoreNotificationRequest;
 use App\Http\Requests\UpdateFriendRequest;
 use App\Http\Resources\FriendResource;
 use App\Models\User;
@@ -21,12 +24,14 @@ class FriendController extends Controller
 {
 
     protected $firebasePushController;
+    protected $notificationController;
 
 
 
-    public function __construct(FirebasePushController $firebasePushController)
+    public function __construct(FirebasePushController $firebasePushController,NotificationController $notificationController)
     {
         $this->firebasePushController = $firebasePushController;
+        $this->notificationController = $notificationController;
     }
     /**
      * Display a listing of the resource.
@@ -54,27 +59,7 @@ class FriendController extends Controller
                 return ResponseHelper::error(message: "Failed to add friend. Please try again.");
             }
 
-            $currentUser = auth()->user();    
-            $friendUser = User::find($dataCreate['friend_id']);
-            if($friendUser){
-                $fcmToken = $friendUser->fcm_token;
-                $avatar = $currentUser->url_avatar;
-                if($fcmToken != null){
-                    $notificationData = NotificationHelper::createNotificationData(
-                        fcmToken: $fcmToken,
-                        title: 'New Friend Request', 
-                        body: 'You have a new friend request!', 
-                        imageUrl: $avatar,
-                        postId: null,
-                        commentId: null,
-                        replyId: null,
-                        friendType: FriendType::REQUESTED,
-                        type: NotificationPayloadType::FRIEND_REQUEST 
-                    );
-                    $this->firebasePushController->sendNotificationToMultipleDevice(new Request($notificationData));
-                }
-              
-            }
+            $this->sendFriendRequestNotification($friend->friend_id, ' sent you a friend request.', 'New Friend Request',FriendType::REQUESTED);
             
             $friend = Friend::with(['user', 'friend'])->find($friend->id);
             DB::commit();
@@ -110,26 +95,7 @@ class FriendController extends Controller
             $friend=Friend::findOrFail($id);
             Gate::authorize('modify',$friend);
             $friend->update($request->all());
-            $friendUser = User::find($friend->user_id);
-            $currentUser = auth()->user();    
-            if($friendUser){
-                $fcmToken = $friendUser->fcm_token;
-                $avatar = $currentUser->url_avatar;
-                if($fcmToken != null){
-                    $notificationData = NotificationHelper::createNotificationData(
-                        fcmToken: $fcmToken,
-                        title: 'Friend Request',
-                        body: $currentUser->name . ' accepted your friend request!', 
-                        imageUrl: $avatar,
-                        postId: null,
-                        commentId: null,
-                        replyId: null,
-                        friendType: FriendType::FRIEND,
-                        type: NotificationPayloadType::FRIEND_REQUEST 
-                    );
-                    $this->firebasePushController->sendNotification(new Request($notificationData));
-                }
-            }
+            $this->sendFriendRequestNotification($friend->user_id, ' accepted your friend request!', 'Friend Request',FriendType::FRIEND);
             DB::commit();
             return ResponseHelper::success(message: "Update friend successfully");
         } catch (\Throwable $th) {
@@ -211,6 +177,57 @@ class FriendController extends Controller
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: $th->getMessage());
         }
+    }
+
+
+
+
+        /**
+     * Send friend request notification
+     */
+    private function sendFriendRequestNotification($friendUserId, $message, $title,FriendType $friendType )
+    {
+        $currentUser = auth()->user();    
+        $friendUser = User::find($friendUserId);
+        if (!$friendUser) return;
+
+        $content = $currentUser->name . $message;
+        $fcmToken = $friendUser->fcm_token;
+        $avatar = $currentUser->url_avatar;
+
+        if ($fcmToken) {
+            $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar);
+            $this->firebasePushController->sendNotification(new Request($notificationData));
+        }
+
+        // Create notification record
+        $linkTo = LinkToHelper::createLinkTo(NotificationPayloadType::FRIEND_REQUEST, $friendType);
+        $request = new StoreNotificationRequest([
+            'title' => $title,
+            'user_id' => $friendUser->id,
+            'content' => $content,
+            'link_to' => $linkTo,
+            'notification_type' => NotificationType::USER
+        ]);
+        $this->notificationController->store($request);
+    }
+
+    /**
+     * Prepare notification data for Firebase
+     */
+    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl)
+    {
+        return NotificationHelper::createNotificationData(
+            fcmToken: $fcmToken,
+            title: $title,
+            body: $body,
+            imageUrl: $imageUrl,
+            postId: null,
+            commentId: null,
+            replyId: null,
+            friendType: FriendType::FRIEND,
+            type: NotificationPayloadType::FRIEND_REQUEST
+        );
     }
 
 }
