@@ -9,9 +9,9 @@ Route::get('/', function () {
     return view('home');
 });
 
-// Route::get('/test', function(){
-//     return view('home');
-// });
+Route::get('/test', function(){
+    return view('index');
+});
 
 Route::get('/dashboard', function () {
     return view('dashboard');
