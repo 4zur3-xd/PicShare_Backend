@@ -97,7 +97,7 @@
     </div>
 
     <footer class="bg-body text-center p-4 fixed-bottom">
-        <b>Copyright 2024 - Group 17 Advanced Android Programing - CT5-ACT</b>
+        <b>Copyright &copy; {{ date('Y') }} Pic Share - Group 17 Advanced Android Programming - CT5-ACT</b>
         <br>
         <i>Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})</i>
     </footer>
