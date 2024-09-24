@@ -31,6 +31,7 @@ class User extends Authenticatable
         'role',
         'email_verified_at',
         'status',
+        'language',
     ];
 
     /**
