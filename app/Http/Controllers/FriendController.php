@@ -196,7 +196,7 @@ class FriendController extends Controller
         $avatar = $currentUser->url_avatar;
 
         if ($fcmToken) {
-            $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar);
+            $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar,$friendType);
             $this->firebasePushController->sendNotification(new Request($notificationData));
         }
 
@@ -215,7 +215,7 @@ class FriendController extends Controller
     /**
      * Prepare notification data for Firebase
      */
-    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl)
+    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl,FriendType $friendType)
     {
         return NotificationHelper::createNotificationData(
             fcmToken: $fcmToken,
@@ -225,7 +225,7 @@ class FriendController extends Controller
             postId: null,
             commentId: null,
             replyId: null,
-            friendType: FriendType::FRIEND,
+            friendType: $friendType,
             type: NotificationPayloadType::FRIEND_REQUEST
         );
     }
