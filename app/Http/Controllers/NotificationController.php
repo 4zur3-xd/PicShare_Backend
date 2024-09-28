@@ -19,7 +19,10 @@ class NotificationController extends Controller
         try {
             $userId = auth()->id();
 
-            $notifications = Notification::where('user_id', $userId)->with(['user', 'sender'])->paginate(30);
+            $notifications = Notification::where('user_id', $userId)
+                                        ->with(['user', 'sender'])
+                                        ->orderBy('created_at', 'desc')
+                                        ->paginate(30);
 
             $dataCollection = new NotificationCollection($notifications);
 
@@ -48,9 +51,10 @@ class NotificationController extends Controller
             $validated['sender_id'] = auth()->id();
 
             $notification = Notification::create($validated);
-            $notification;
+            return $notification;
         } catch (\Throwable $th) {
             Log::error("Failed to create notification: " . $th->getMessage());
+            return null;
         }
     }
 

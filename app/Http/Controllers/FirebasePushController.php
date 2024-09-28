@@ -106,6 +106,8 @@ class FirebasePushController extends Controller
                 'comment_id' => $data['comment_id'] ?? null,
                 'reply_id' => $data['reply_id'] ?? null,
                 'friend_type' => $data['friend_type'] ?? null,
+                'notification_id' => $data['notification_id'] ?? null,
+                'conversation_id' => $data['conversation_id'] ?? null,
         ], )
             ->withAndroidConfig(AndroidConfig::fromArray([
                 'notification' => [

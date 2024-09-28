@@ -152,11 +152,6 @@ class CommentController extends Controller
                 $fcmToken = $friendUser->fcm_token;
                 $avatar = $currentUser->url_avatar;
 
-                if ($fcmToken) {
-                    $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar, $postId, $commentId, $replyId);
-                    $this->firebasePushController->sendNotification(new Request($notificationData));
-                }
-
                 // Create notification record
                 $linkTo = LinkToHelper::createLinkTo(NotificationPayloadType::COMMENT, null, $postId, $commentId, $replyId);
                 $request = new StoreNotificationRequest([
@@ -166,13 +161,20 @@ class CommentController extends Controller
                     'link_to' => $linkTo,
                     'notification_type' => NotificationType::USER,
                 ]);
-                $this->notificationController->store($request);
+                $notification = $this->notificationController->store($request);
+                $notificationId = $notification ? $notification->id : null;
+
+                if ($fcmToken) {
+                    $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar, $postId, $commentId, $replyId, $notificationId);
+                    $this->firebasePushController->sendNotification(new Request($notificationData));
+                }
+
             }
 
         }
     }
 
-    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl, ?int $postId, ?int $commentId, ?int $replyId)
+    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl, ?int $postId, ?int $commentId, ?int $replyId, $notificationId)
     {
         return NotificationHelper::createNotificationData(
             fcmToken: $fcmToken,
@@ -183,7 +185,9 @@ class CommentController extends Controller
             commentId: $commentId,
             replyId: $replyId,
             friendType: null,
-            type: NotificationPayloadType::COMMENT
+            type: NotificationPayloadType::COMMENT,
+            notificationId: $notificationId,
+            conversationId: null,
         );
     }
 

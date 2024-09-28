@@ -9,16 +9,16 @@ use App\Enum\NotificationType;
 use App\Helper\LinkToHelper;
 use App\Helper\NotificationHelper;
 use App\Helper\ResponseHelper;
-use App\Models\Friend;
 use App\Http\Requests\StoreFriendRequest;
 use App\Http\Requests\StoreNotificationRequest;
 use App\Http\Requests\UpdateFriendRequest;
 use App\Http\Resources\FriendResource;
+use App\Models\Friend;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class FriendController extends Controller
 {
@@ -26,9 +26,7 @@ class FriendController extends Controller
     protected $firebasePushController;
     protected $notificationController;
 
-
-
-    public function __construct(FirebasePushController $firebasePushController,NotificationController $notificationController)
+    public function __construct(FirebasePushController $firebasePushController, NotificationController $notificationController)
     {
         $this->firebasePushController = $firebasePushController;
         $this->notificationController = $notificationController;
@@ -51,28 +49,27 @@ class FriendController extends Controller
         try {
             $dataCreate = $request->all();
             $dataCreate['user_id'] = auth()->user()->id;
-            
+
             $friend = Friend::create($dataCreate);
-    
+
             if (!$friend || $friend->wasRecentlyCreated === false) {
                 DB::rollBack();
                 return ResponseHelper::error(message: "Failed to add friend. Please try again.");
             }
 
-            $this->sendFriendRequestNotification($friend->friend_id, ' sent you a friend request.', 'New Friend Request',FriendType::REQUESTED);
-            
+            $this->sendFriendRequestNotification($friend->friend_id, ' sent you a friend request.', 'New Friend Request', FriendType::REQUESTED);
+
             $friend = Friend::with(['user', 'friend'])->find($friend->id);
             DB::commit();
             return ResponseHelper::success(
-                message: "Add friend successfully", 
+                message: "Add friend successfully",
                 data: new FriendResource($friend)
             );
         } catch (\Throwable $th) {
             DB::rollBack();
-           return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: $th->getMessage());
         }
-      
-       
+
     }
 
     /**
@@ -92,15 +89,15 @@ class FriendController extends Controller
         DB::beginTransaction();
         try {
             // Make sure that only the true owner can update
-            $friend=Friend::findOrFail($id);
-            Gate::authorize('modify',$friend);
+            $friend = Friend::findOrFail($id);
+            Gate::authorize('modify', $friend);
             $friend->update($request->all());
-            $this->sendFriendRequestNotification($friend->user_id, ' accepted your friend request!', 'Friend Request',FriendType::FRIEND);
+            $this->sendFriendRequestNotification($friend->user_id, ' accepted your friend request!', 'Friend Request', FriendType::FRIEND);
             DB::commit();
             return ResponseHelper::success(message: "Update friend successfully");
         } catch (\Throwable $th) {
             DB::rollBack();
-           return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: $th->getMessage());
         }
     }
 
@@ -110,8 +107,8 @@ class FriendController extends Controller
     public function destroy($id)
     {
         try {
-            $friend=Friend::findOrFail($id);
-            Gate::authorize('modify',$friend);
+            $friend = Friend::findOrFail($id);
+            Gate::authorize('modify', $friend);
             $friend->delete();
             return ResponseHelper::success(message: "Delete friend successfully");
         } catch (\Throwable $th) {
@@ -119,21 +116,20 @@ class FriendController extends Controller
         }
     }
 
-
     public function getFriends()
     {
         try {
-            
+
             $friends = Friend::where(function ($query) {
                 $query->where('user_id', Auth::id())
-                      ->orWhere('friend_id', Auth::id());
+                    ->orWhere('friend_id', Auth::id());
             })
-            ->where('status', FriendStatus::FRIEND) 
-            ->with(['user', 'friend'])
-            ->get();
-            $dataCollection=  FriendResource::collection($friends);
+                ->where('status', FriendStatus::FRIEND)
+                ->with(['user', 'friend'])
+                ->get();
+            $dataCollection = FriendResource::collection($friends);
             $responseData = [
-                'user_id' =>  Auth::id(),
+                'user_id' => Auth::id(),
                 'list_friend' => $dataCollection,
                 'totalItems' => $friends->count(),
             ];
@@ -146,12 +142,12 @@ class FriendController extends Controller
     {
         try {
             $friends = Friend::where('friend_id', Auth::id())
-            ->where('status', FriendStatus::PENDING) 
-            ->with(['user', 'friend'])
-            ->get();
-            $dataCollection=  FriendResource::collection($friends);
+                ->where('status', FriendStatus::PENDING)
+                ->with(['user', 'friend'])
+                ->get();
+            $dataCollection = FriendResource::collection($friends);
             $responseData = [
-                'user_id' =>  Auth::id(),
+                'user_id' => Auth::id(),
                 'list_request' => $dataCollection,
                 'totalItems' => $friends->count(),
             ];
@@ -164,12 +160,12 @@ class FriendController extends Controller
     {
         try {
             $friends = Friend::where('user_id', Auth::id())
-            ->where('status', FriendStatus::PENDING) 
-            ->with(['user', 'friend'])
-            ->get();
-            $dataCollection=  FriendResource::collection($friends);
+                ->where('status', FriendStatus::PENDING)
+                ->with(['user', 'friend'])
+                ->get();
+            $dataCollection = FriendResource::collection($friends);
             $responseData = [
-                'user_id' =>  Auth::id(),
+                'user_id' => Auth::id(),
                 'list_request' => $dataCollection,
                 'totalItems' => $friends->count(),
             ];
@@ -179,26 +175,20 @@ class FriendController extends Controller
         }
     }
 
-
-
-
-        /**
+    /**
      * Send friend request notification
      */
-    private function sendFriendRequestNotification($friendUserId, $message, $title,FriendType $friendType )
+    private function sendFriendRequestNotification($friendUserId, $message, $title, FriendType $friendType)
     {
-        $currentUser = auth()->user();    
+        $currentUser = auth()->user();
         $friendUser = User::find($friendUserId);
-        if (!$friendUser) return;
+        if (!$friendUser) {
+            return;
+        }
 
         $content = $currentUser->name . $message;
         $fcmToken = $friendUser->fcm_token;
         $avatar = $currentUser->url_avatar;
-
-        if ($fcmToken) {
-            $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar,$friendType);
-            $this->firebasePushController->sendNotification(new Request($notificationData));
-        }
 
         // Create notification record
         $linkTo = LinkToHelper::createLinkTo(NotificationPayloadType::FRIEND_REQUEST, $friendType);
@@ -207,15 +197,21 @@ class FriendController extends Controller
             'user_id' => $friendUser->id,
             'content' => $content,
             'link_to' => $linkTo,
-            'notification_type' => NotificationType::USER
+            'notification_type' => NotificationType::USER,
         ]);
-        $this->notificationController->store($request);
+       $notification=  $this->notificationController->store($request);
+       $notificationId = $notification ? $notification->id : null;
+        if ($fcmToken) {
+            $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar, $friendType, $notificationId);
+            $this->firebasePushController->sendNotification(new Request($notificationData));
+        }
+
     }
 
     /**
      * Prepare notification data for Firebase
      */
-    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl,FriendType $friendType)
+    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl, FriendType $friendType,$notificationId)
     {
         return NotificationHelper::createNotificationData(
             fcmToken: $fcmToken,
@@ -226,7 +222,9 @@ class FriendController extends Controller
             commentId: null,
             replyId: null,
             friendType: $friendType,
-            type: NotificationPayloadType::FRIEND_REQUEST
+            type: NotificationPayloadType::FRIEND_REQUEST,
+            notificationId: $notificationId,
+            conversationId: null,
         );
     }
 
