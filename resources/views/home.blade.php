@@ -83,15 +83,15 @@
         <br>
 
         @if (!auth()->user())
-            <h3>Please login first!</h3>
+            <h2>Please login first!</h2>
             <p>Admin account required.</p>
         @elseif (auth()->user()->status == 0)
-            <h3>Access Denied!</h3>
+            <2>Access Denied!</2>
             <p>This account has been banned! Mail to abcxyz@gmail.com for information or to protest the ban.</p>
         @elseif (auth()->user()->role == 'admin')
-            <h3>Welcome back, {{ auth()->user()->name }}!</h3>
+            <h2>Welcome back, {{ auth()->user()->name }}!</h2>
         @else
-            <h3>Access Denied!</h3>
+            <h2>Access Denied!</h2>
             <p>Sorry, you shouldn't mean to be here! This page is for admin only.</p>
         @endif
     </div>
