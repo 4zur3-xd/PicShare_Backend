@@ -24,7 +24,9 @@ class GoogleAuthController extends Controller
 
             $usedEmail = User::where('email', $googleUser->getEmail())->where('google_id', null)->first();
             if($usedEmail){
-                return "Sorry, this email has been registered to an account (Try login with this email and password, not \"Continue with Google\"!).";
+                $error_info = 'Sorry, this email has been registered to an account (Try login with this email and password, not "Continue with Google"!).';
+
+                return view('errors.500')->with('error_info', $error_info);
             }
 
             $user = User::where('google_id', $googleUser->getId())->first();
@@ -48,7 +50,7 @@ class GoogleAuthController extends Controller
             }
 
         } catch (\Throwable $th) {
-            dd('Something wrong! Info: '.$th->getMessage());
+            return view('errors.500')->with('error_info', $th->getMessage());
         }
         
     }
