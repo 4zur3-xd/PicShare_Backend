@@ -22,6 +22,8 @@ class NotificationHelper
         ?int $postId = null,
         ?int $commentId = null,
         ?int $replyId = null,
+        ?int $notificationId = null,
+        ?int $conversationId = null,
         ?FriendType $friendType = null,
         NotificationPayloadType $type,
     ): array {
@@ -35,6 +37,8 @@ class NotificationHelper
             'reply_id' => $replyId,
             'type' => $type->value,
             'friend_type' =>  $friendType?->value ?? null,
+            'notification_id' => $notificationId,
+            'conversation_id' => $conversationId
         ];
     }
 
@@ -47,6 +51,8 @@ class NotificationHelper
         ?string $postId = null,
         ?string $commentId = null,
         ?string $replyId = null,
+        ?int $notificationId = null,
+        ?int $conversationId = null,
         ?FriendType $friendType = null,
         NotificationPayloadType $type
     ): array {
@@ -59,7 +65,9 @@ class NotificationHelper
             'comment_id' => $commentId,
             'reply_id' => $replyId,
             'type' => $type->value,
-            'friend_type' => $friendType->value
+            'friend_type' => $friendType?->value ?? null,
+            'notification_id' => $notificationId,
+            'conversation_id' => $conversationId
         ];
     }
 }
