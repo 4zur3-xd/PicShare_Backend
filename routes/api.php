@@ -98,5 +98,7 @@ Route::get('/user_logs', [UserLogController::class, 'getUserLogs'])->middleware(
 // notifications
 Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('notifications')->group(function (){
     Route::get('/', [NotificationController::class, 'getNotifications']);
-    Route::post('/update_unseen_notification/{id}', [NotificationController::class, 'update']);
-});
+    Route::get('/get_unseen_count', [NotificationController::class, 'getUnseenCount']);
+    Route::post('/mark_as_read/{id}', [NotificationController::class, 'update']);
+    Route::post('/mark_as_seen', [NotificationController::class, 'markAllAsSeen']);
+}); 

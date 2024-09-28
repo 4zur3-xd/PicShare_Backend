@@ -17,7 +17,8 @@ class Notification extends Model
       'content',
       'link_to',
       'notification_type',
-      'is_seen'  
+      'is_seen',
+      'is_read'  
     ];
 
 
