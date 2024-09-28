@@ -28,7 +28,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <img src="{{ asset('images/pic_share_logo.png') }}" style="width: 55px; height: 55px;">
                 </div>
@@ -131,7 +131,13 @@
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                                 Total Users
                                             </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">3</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                @if (isset($headData['total_users']))
+                                                    {{ $headData['total_users'] }}
+                                                @else
+                                                    No Data
+                                                @endif
+                                            </div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-users fa-2x text-gray-300"></i>
@@ -149,7 +155,13 @@
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                                 New Users (This week)
                                             </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">2</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                @if (isset($headData['new_users']))
+                                                    {{ $headData['new_users'] }}
+                                                @else
+                                                    No Data
+                                                @endif
+                                            </div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-user-plus fa-2x text-gray-300"></i>
@@ -167,7 +179,13 @@
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                                 Total Posts
                                             </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">1</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                @if (isset($headData['total_posts']))
+                                                    {{ $headData['total_posts'] }}
+                                                @else
+                                                    No Data
+                                                @endif
+                                            </div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-clipboard fa-2x text-gray-300"></i>
@@ -183,12 +201,18 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                New Posts (This Week)
+                                                Total Reports
                                             </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                @if (isset($headData['total_reports']))
+                                                    {{ $headData['total_reports'] }}
+                                                @else
+                                                    No Data
+                                                @endif
+                                            </div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-plus fa-2x text-gray-300"></i>
+                                            <i class="fas fa-flag fa-2x text-gray-300"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -211,11 +235,14 @@
                                 <!-- Card Body -->
                                 <div class="card-body">
                                     <div class="chart-area">
-                                        {{-- <canvas id="users-overview-chart" height="90%"></canvas> --}}
+                                        @if (isset($lineChartData))
+                                        <canvas id="users-overview-chart" height="90%"></canvas>
+                                        @else
                                         <img src="{{ asset('images/line-chart-no-data.jpg') }}" style="display: block; margin: auto; height: 95%; max-width: 95%;">
                                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: black;">
                                             <h1>No Data</h1>
                                         </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -230,13 +257,16 @@
                                     <h6 class="m-0 font-weight-bold text-primary">Users Verification Overview</h6>
                                 </div>
                                 <!-- Card Body -->
-                                <div class="card-body">
+                                <div class="card-body" style="height: 360px;">
                                     <div class="chart-pie pt-4 pb-2">
-                                        {{-- <canvas id="users-verify-chart" style="margin: auto;"></canvas> --}}
+                                        @if (isset($pieChartData))
+                                        <canvas id="users-verify-chart" style="margin: auto;"></canvas>
+                                        @else
                                         <img src="{{ asset('images/pie-chart-no-data.jpg') }}" style="display: block; margin: auto; height: 95%;">
                                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: black;">
                                             <h1>No Data</h1>
                                         </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -279,7 +309,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Logout</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Are you sure?</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -304,14 +334,18 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
+        @if (empty($lineChartData))
         var newUserData = [3, 0, 1, 4, 0];
+        @else
+        var newUserData = [{{ implode(',', $lineChartData) }}];
+        @endif
         var maxDataValue = Math.max(...newUserData);
 
         var ctx = document.getElementById("users-overview-chart");
         var newUserChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['4 days ago', '3 days ago', '2 days ago', '1 day ago', 'Today'],
+                labels: ['4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
                 datasets: [{
                     label: 'New Users',
                     data: newUserData,
@@ -339,6 +373,11 @@
     </script>
 
     <script>
+        @if (empty($pieChartData))
+            var pieData = [7, 2];
+        @else
+        var pieData = [{{ implode(',', $pieChartData) }}];
+        @endif
         var ctx = document.getElementById('users-verify-chart').getContext('2d');
 
         var verificationChart = new Chart(ctx, {
@@ -346,7 +385,7 @@
             data: {
                 labels: ['Verified', 'Unverified'],
                 datasets: [{
-                    data: [7, 2],
+                    data: pieData,
                     backgroundColor: [
                         'rgba(13, 110, 253, 0.6)',
                         'rgba(200, 200, 200, 0.6)'

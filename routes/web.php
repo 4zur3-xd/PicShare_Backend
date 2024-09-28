@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminWeb\DashboardController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\WebMiddleware;
@@ -9,13 +10,9 @@ Route::get('/', function () {
     return view('home');
 });
 
-// Route::get('/test', function(){
-//     return view('index');
-// });
+// Route::get('/test', [DashboardController::class, 'index']);
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified', WebMiddleware::class])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified', WebMiddleware::class])->name('dashboard');
 
 // Route::middleware('auth')->group(function () {
 //     Route::get('/profile', function () {
