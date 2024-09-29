@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('message_type',MessageType::getValues())->default(MessageType::TEXT);
             $table->double('height')->nullable();
             $table->double('width')->nullable();
+            $table->boolean('is_read')->default(false);
             $table->timestamps();
         });
     }
