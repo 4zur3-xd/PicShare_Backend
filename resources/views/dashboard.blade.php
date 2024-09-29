@@ -52,7 +52,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{{ route('reports_manage') }}">
                     <i class="fas fa-fw fa-flag"></i>
                     <span>Reports Management</span></a>
             </li>

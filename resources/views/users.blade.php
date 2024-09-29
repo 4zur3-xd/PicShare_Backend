@@ -58,7 +58,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{{ route('reports_manage') }}">
                     <i class="fas fa-fw fa-flag"></i>
                     <span>Reports Management</span></a>
             </li>
@@ -238,7 +238,7 @@
                                     <h6 class="m-0 font-weight-bold text-primary" href="">Users List</h6>
                                 </div>
                                 <!-- Card Body -->
-                                <div class="card-body">
+                                <div class="card-body" style="overflow: auto;">
                                     <form method="get">
                                         <div class="input-group mb-3">
                                             <input type="text" class="form-control" name="search" placeholder="Search for user..." required>
@@ -250,7 +250,7 @@
                                         </div>
                                     </form>
                                     @if (!empty($_GET['search']))
-                                    <a class="btn btn-outline-danger" href="{{ route('testpage') }}" style="display: inline-block; margin-bottom: 15px;">Clear search</a>
+                                    <a class="btn btn-outline-danger" href="{{ route('users_manage') }}" style="display: inline-block; margin-bottom: 15px;">Clear search</a>
                                     @endif
                                     <table class="table" id="main-table">
                                         <tr>
@@ -280,14 +280,14 @@
                                             @if (!$user->email_verified_at)
                                                 No
                                             @else
-                                                Yes
+                                                <span style="color: violet;">Yes</span>
                                             @endif
                                             </td>
                                             <td>
                                             @if ($user->status)
-                                                Active
+                                                <span style="color: yellowgreen;">Active</span>
                                             @else
-                                                Banned
+                                                <span style="color: red;">Banned</span>
                                             @endif
                                             </td>
                                             <td>{{ $user->role }}</td>
@@ -299,23 +299,23 @@
                                     <ul class="pagination justify-content-end">
                                     @if (empty($_GET['search']))
                                         @if ($usersData['page'] != 1)
-                                        <li class="page-item"><a class="page-link" href="{{ route('testpage').'/'.($usersData['page'] - 1) }}"><<</a></li>
+                                        <li class="page-item"><a class="page-link" href="{{ route('users_manage').'/'.($usersData['page'] - 1) }}"><</a></li>
                                         @else
-                                        <li class="page-item disabled"><a class="page-link" href=""><<</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href=""><</a></li>
                                         @endif
 
                                         @for ($i = 1; $i <= $usersData['total_pages']; $i++)
                                             @if ($i == $usersData['page'])
                                         <li class="page-item disabled"><a class="page-link" href="">{{ $i }}</a></li>
                                             @else
-                                        <li class="page-item"><a class="page-link" href="{{ route('testpage').'/'.$i }}">{{ $i }}</a></li>
+                                        <li class="page-item"><a class="page-link" href="{{ route('users_manage').'/'.$i }}">{{ $i }}</a></li>
                                             @endif
                                         @endfor
 
                                         @if ($usersData['page'] != $usersData['total_pages'])
-                                        <li class="page-item"><a class="page-link" href="{{ route('testpage').'/'.($usersData['page'] + 1) }}">>></a></li>
+                                        <li class="page-item"><a class="page-link" href="{{ route('users_manage').'/'.($usersData['page'] + 1) }}">></a></li>
                                         @else
-                                        <li class="page-item disabled"><a class="page-link" href="">>></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="">></a></li>
                                         @endif
                                     @endif
                                     </ul>

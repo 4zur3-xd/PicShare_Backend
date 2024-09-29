@@ -10,10 +10,11 @@ Route::get('/', function () {
     return view('home');
 });
 
-Route::get('/test/{page?}', [DashboardController::class, 'userManage'])->name('testpage');
-
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified', WebMiddleware::class])->name('dashboard');
 Route::get('/users/{page?}', [DashboardController::class, 'userManage'])->middleware(['auth', 'verified', WebMiddleware::class])->name('users_manage');
+Route::get('/reports/{page?}', [DashboardController::class, 'reportManage'])->middleware(['auth', 'verified', WebMiddleware::class])->name('reports_manage');
+
+Route::post('ban', [DashboardController::class, 'userBan'])->middleware(['auth', 'verified', WebMiddleware::class])->name('user_ban');
 
 // Route::middleware('auth')->group(function () {
 //     Route::get('/profile', function () {

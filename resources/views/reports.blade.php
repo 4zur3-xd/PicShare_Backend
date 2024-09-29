@@ -11,6 +11,9 @@
 
     <title>Pic Share Admin - Dashboard</title>
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
     <!-- Custom fonts for this template-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
@@ -51,13 +54,13 @@
 
             <hr class="sidebar-divider my-0">
 
-            <li class="nav-item active">
-                <a class="nav-link" href="">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('users_manage') }}">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Users Management</span></a>
             </li>
 
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a class="nav-link" href="">
                     <i class="fas fa-fw fa-flag"></i>
                     <span>Reports Management</span></a>
@@ -123,107 +126,7 @@
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Users Management</h1>
-                    </div>
-
-                    <!-- Content Row -->
-                    <div class="row">
-
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-primary shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Total Users
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                @if (isset($headData['total_users']))
-                                                    {{ $headData['total_users'] }}
-                                                @else
-                                                    No Data
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-users fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-primary shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                New Users (This week)
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                @if (isset($headData['new_users']))
-                                                    {{ $headData['new_users'] }}
-                                                @else
-                                                    No Data
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-user-plus fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-primary shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Verified - Unverified Users
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                @if (isset($headData['veri_users']))
-                                                    {{ $headData['veri_users'] }}
-                                                @else
-                                                    No Data
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-clipboard fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-primary shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Banned Users
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                @if (isset($headData['banned_users']))
-                                                    {{ $headData['banned_users'] }}
-                                                @else
-                                                    No Data
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-ban fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <h1 class="h3 mb-0 text-gray-800">Reports Management</h1>
                     </div>
 
                     <!-- Content Row -->
@@ -235,89 +138,79 @@
                                 <!-- Card Header -->
                                 <div
                                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary" href="">Users List</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary" href="">Reports List</h6>
                                 </div>
                                 <!-- Card Body -->
-                                <div class="card-body">
-                                    <form method="get">
-                                        <div class="input-group mb-3">
-                                            <input type="text" class="form-control" name="search" placeholder="Search for user..." required>
-                                            <button class="btn btn-primary" type="button">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                                                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </form>
-                                    @if (!empty($_GET['search']))
-                                    <a class="btn btn-outline-danger" href="{{ route('testpage') }}" style="display: inline-block; margin-bottom: 15px;">Clear search</a>
-                                    @endif
+                                <div class="card-body" style="overflow: auto;">
                                     <table class="table" id="main-table">
                                         <tr>
                                             <th style="width: 50px;">ID</th>
-                                            <th style="width: 50px;">Img</th>
-                                            <th>Email</th>
-                                            <th>Full Name</th>
-                                            <th style="width: 50px;">Verified</th>
-                                            <th style="width: 50px;">Status</th>
-                                            <th>Role</th>
-                                            <th>Created At</th>
-                                            <th>Info</th>
+                                            <th style="width: 150px;">Post</th>
+                                            <th>Reason</th>
+                                            <th style="width: 150px;">Targeted User</th>
+                                            <th style="width: 150px;">User Reported</th>
+                                            <th style="width: 150px;">Created At</th>
+                                            <th style="width: 50px;">Action</th>
                                         </tr>
-                                        @foreach ($usersData['data'] as $user)
+                                        @foreach ($reportsData['data'] as $report)
+                                            @foreach ($reportsData['reported_user_data'] as $reportedUser)
+                                                @if ($report->reported_user == $reportedUser->id && $reportedUser->status == 1)
                                         <tr>
-                                            <td>{{ $user->id }}</td>
+                                            <td>{{ $report->id }}</td>
                                             <td>
-                                            @if (!$user->url_avatar)
-                                                <img src="{{ asset('images/blank-avatar.jpg') }}" style="height: 48px; width: 48px;">
-                                            @else
-                                                <img src="{{ $user->url_avatar }}" style="height: 48px; width: 48px;">
-                                            @endif
+                                                <a href="" data-bs-toggle="modal" data-bs-target="#modalPost{{ $report->post_id }}" onclick="event.preventDefault()">
+                                                    Post #{{ $report->post_id }}
+                                                </a>
                                             </td>
-                                            <td>{{ $user->email }}</td>
-                                            <td>{{ $user->name }}</td>
+                                            <td>{{ $report->reason }}</td>
                                             <td>
-                                            @if (!$user->email_verified_at)
-                                                No
-                                            @else
-                                                Yes
-                                            @endif
+                                                @foreach ($reportsData['reported_user_data'] as $reportedUser)
+                                                    @if ($report->reported_user == $reportedUser->id)
+                                                        {{ $reportedUser->name }} (<a href="">#{{ $report->reported_user }}</a>)
+                                                    @endif
+                                                @endforeach
                                             </td>
                                             <td>
-                                            @if ($user->status)
-                                                Active
-                                            @else
-                                                Banned
-                                            @endif
+                                                @foreach ($reportsData['reporting_user_data'] as $reportingUser)
+                                                    @if ($report->user_reporting == $reportingUser->id)
+                                                        {{ $reportingUser->name }} (<a href="">#{{ $report->user_reporting }}</a>)
+                                                    @endif
+                                                @endforeach
                                             </td>
-                                            <td>{{ $user->role }}</td>
-                                            <td>{{ $user->created_at }}</td>
-                                            <td><a href="">Info</a></td>
+                                            <td>{{ $report->created_at }}</td>
+                                            <td>
+                                                <button onclick="banUser{{ $report->reported_user }}()" class="btn btn-danger">BAN</button>
+                                            </td>
                                         </tr>
+                                                @elseif ($report->reported_user == $reportedUser->id && $reportedUser->status == 0)
+                                        <tr>
+                                            <td style="background-color: rgb(0, 0, 0, 0.15);">{{ $report->id }}</td>
+                                            <td colspan="6" style="text-align: center; background-color: rgb(0, 0, 0, 0.15);">This user has been banned</td>
+                                        </tr>
+                                                @endif
+                                            @endforeach
                                         @endforeach
                                     </table>
                                     <ul class="pagination justify-content-end">
-                                    @if (empty($_GET['search']))
-                                        @if ($usersData['page'] != 1)
-                                        <li class="page-item"><a class="page-link" href="{{ route('testpage').'/'.($usersData['page'] - 1) }}"><<</a></li>
+                                        @if ($reportsData['page'] != 1)
+                                        <li class="page-item"><a class="page-link" href="{{ route('reports_manage').'/'.($reportsData['page'] - 1) }}"><</a></li>
                                         @else
-                                        <li class="page-item disabled"><a class="page-link" href=""><<</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href=""><</a></li>
                                         @endif
 
-                                        @for ($i = 1; $i <= $usersData['total_pages']; $i++)
-                                            @if ($i == $usersData['page'])
+                                        @for ($i = 1; $i <= $reportsData['total_pages']; $i++)
+                                            @if ($i == $reportsData['page'])
                                         <li class="page-item disabled"><a class="page-link" href="">{{ $i }}</a></li>
                                             @else
-                                        <li class="page-item"><a class="page-link" href="{{ route('testpage').'/'.$i }}">{{ $i }}</a></li>
+                                        <li class="page-item"><a class="page-link" href="{{ route('reports_manage').'/'.$i }}">{{ $i }}</a></li>
                                             @endif
                                         @endfor
 
-                                        @if ($usersData['page'] != $usersData['total_pages'])
-                                        <li class="page-item"><a class="page-link" href="{{ route('testpage').'/'.($usersData['page'] + 1) }}">>></a></li>
+                                        @if ($reportsData['page'] != $reportsData['total_pages'])
+                                        <li class="page-item"><a class="page-link" href="{{ route('reports_manage').'/'.($reportsData['page'] + 1) }}">></a></li>
                                         @else
-                                        <li class="page-item disabled"><a class="page-link" href="">>></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="">></a></li>
                                         @endif
-                                    @endif
                                     </ul>
                                 </div>
                             </div>
@@ -373,6 +266,44 @@
             </div>
         </div>
     </div>
+
+    @foreach ($reportsData['post_data'] as $post)
+    <div class="modal fade" id="modalPost{{ $post->id }}" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customModalLabel">Post #{{ $post->id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img src="{{ asset('images/pie-chart-no-data.jpg') }}" style="display: block; margin:auto; width: 75%;">
+                <p>
+                    Caption: <b>{{ $post->caption }}</b>
+                </p>
+                <p><small>
+                    Posted at <b>{{ $post->created_at }}</b>
+                </small></p>
+            </div>
+          </div>
+        </div>
+    </div>
+    @endforeach
+
+    @foreach ($reportsData['reported_user_data'] as $reportedUser)
+        @if ($reportedUser->status == 1)
+            <form id="banForm{{ $reportedUser->id }}" action="{{ route('user_ban') }}" method="POST" style="display: none;">
+                @csrf
+                <input type="hidden" name="user_id" value="{{ $reportedUser->id }}">
+            </form>
+            <script>
+                function banUser{{ $reportedUser->id }}(){
+                    if (confirm('Are you sure you want to ban this user?')) {
+                        document.getElementById('banForm{{ $reportedUser->id }}').submit();
+                    }
+                }
+            </script>
+        @endif
+    @endforeach
 
     <!-- Bootstrap core JavaScript-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

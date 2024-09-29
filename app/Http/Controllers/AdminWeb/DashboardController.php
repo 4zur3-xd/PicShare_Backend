@@ -110,4 +110,74 @@ class DashboardController extends Controller
             return view('errors.500')->with('error_info', $th->getMessage());
         }
     }
+
+    public function reportManage($page = 1)
+    {
+        try {
+            // Reports and pagination
+            $reportPerPage = 10;
+            $data = Report::all();
+            $reportNum = $data->count();
+            $pageNum = ceil($reportNum/$reportPerPage);
+            $reportsData = []; // Returning data
+            $reportsData['data'] = [];
+
+            // Get posts' data and users' data
+            $temp = Report::distinct()->pluck('post_id');
+            $reportsData['post_data'] = Post::whereIn('id', $temp)->get();
+
+            $temp = Report::distinct()->pluck('reported_user');
+            $reportsData['reported_user_data'] = User::whereIn('id', $temp)->get();
+
+            $temp = Report::distinct()->pluck('user_reporting');
+            $reportsData['reporting_user_data'] = User::whereIn('id', $temp)->get();
+
+            // Pagination
+            if($reportNum == 0){
+                $reportsData['rp_num'] = 0;
+                $reportsData['msg'] = 'No reports found!';
+            }
+
+            if($pageNum == 1){
+                $reportsData['rp_num'] = $reportNum;
+                $reportsData['page'] = $page;
+                $reportsData['total_pages'] = $pageNum;
+                $reportsData['data'] = $data;
+            }
+
+            if($pageNum > 1){
+                if($page*$reportPerPage > $reportNum){
+                    for($i = ($page - 1)*$reportPerPage; $i < $reportNum; $i++){
+                        array_push($reportsData['data'], $data[$i]);
+                    }
+                }else{
+                    for($i = ($page - 1)*$reportPerPage; $i < $page*$reportPerPage; $i++){
+                        array_push($reportsData['data'], $data[$i]);
+                    }
+                }
+
+                $reportsData['rp_num'] = $reportNum;
+                $reportsData['page'] = $page;
+                $reportsData['total_pages'] = $pageNum;
+            }
+
+            return view('reports')->with('reportsData', $reportsData);
+            // return $reportsData;
+        } catch (\Throwable $th) {
+            return view('errors.500')->with('error_info', $th->getMessage());
+        }
+    }
+
+    public function userBan()
+    {
+        try {
+            $target = User::where('id', $_POST['user_id'])->first();
+            $target->status = 0;
+            $target->save();
+
+            return redirect()->back();
+        } catch (\Throwable $th) {
+            return view('errors.500')->with('error_info', $th->getMessage());
+        }
+    }
 }
