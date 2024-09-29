@@ -15,6 +15,8 @@ use App\Http\Controllers\UserViewController;
 use App\Http\Controllers\FirebasePushController;
 use App\Http\Controllers\ApiGoogleAuthController;
 use App\Http\Controllers\ApiUserSearchController;
+use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserLogController;
 
@@ -101,4 +103,13 @@ Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('notific
     Route::get('/get_unseen_count', [NotificationController::class, 'getUnseenCount']);
     Route::post('/mark_as_read/{id}', [NotificationController::class, 'update']);
     Route::post('/mark_as_seen', [NotificationController::class, 'markAllAsSeen']);
+}); 
+
+
+// conversations
+Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('conversations')->group(function (){
+    Route::get('/', [ConversationController::class, 'index']);
+    Route::get('{id}/messages', [ConversationController::class, 'getMessages']);
+    Route::post('/send_message', [MessageController::class, 'store']);
+    Route::post('{id}/mark-all-as-read', [ConversationController::class, 'markAllMessagesAsRead']);
 }); 
