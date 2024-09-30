@@ -192,6 +192,7 @@
                                         @endforeach
                                     </table>
                                     <ul class="pagination justify-content-end">
+                                    @if ($reportsData['rp_num'] != 0)
                                         @if ($reportsData['page'] != 1)
                                         <li class="page-item"><a class="page-link" href="{{ route('reports_manage').'/'.($reportsData['page'] - 1) }}"><</a></li>
                                         @else
@@ -211,6 +212,7 @@
                                         @else
                                         <li class="page-item disabled"><a class="page-link" href="">></a></li>
                                         @endif
+                                    @endif
                                     </ul>
                                 </div>
                             </div>
