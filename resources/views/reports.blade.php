@@ -152,6 +152,8 @@
                                             <th style="width: 150px;">Created At</th>
                                             <th style="width: 50px;">Action</th>
                                         </tr>
+                                        @if ($reportsData['rp_num'] != 0)
+
                                         @foreach ($reportsData['data'] as $report)
                                             @foreach ($reportsData['reported_user_data'] as $reportedUser)
                                                 @if ($report->reported_user == $reportedUser->id && $reportedUser->status == 1)
@@ -190,6 +192,12 @@
                                                 @endif
                                             @endforeach
                                         @endforeach
+
+                                        @else
+                                        <tr>
+                                            <td colspan="7" style="text-align: center;">There is no reports!</td>
+                                        </tr>
+                                        @endif
                                     </table>
                                     <ul class="pagination justify-content-end">
                                     @if ($reportsData['rp_num'] != 0)
@@ -278,7 +286,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <img src="{{ asset('images/pie-chart-no-data.jpg') }}" style="display: block; margin:auto; width: 75%;">
+                <img src="{{ asset($post->url_image) }}" style="display: block; margin:auto; width: 75%;">
                 <p>
                     Caption: <b>{{ $post->caption }}</b>
                 </p>
