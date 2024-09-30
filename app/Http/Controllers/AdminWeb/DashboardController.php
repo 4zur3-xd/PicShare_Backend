@@ -162,7 +162,6 @@ class DashboardController extends Controller
             }
 
             return view('reports')->with('reportsData', $reportsData);
-            // return $reportsData;
         } catch (\Throwable $th) {
             return view('errors.500')->with('error_info', $th->getMessage());
         }
@@ -174,6 +173,7 @@ class DashboardController extends Controller
             $target = User::where('id', $_POST['user_id'])->first();
             $target->status = 0;
             $target->save();
+            Post::where('user_id', $_POST['user_id'])->delete();
 
             return redirect()->back();
         } catch (\Throwable $th) {
