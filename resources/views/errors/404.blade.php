@@ -17,7 +17,7 @@
 
     <nav class="navbar bg-body">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="{{ url('/') }}">
                 <img src="{{ asset('images/pic_share_logo.png') }}" alt="Pic Share logo" width="40" height="40">
                 Pic Share
             </a>
@@ -43,10 +43,6 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li>
-                            <li><a class="dropdown-item" href="{{ route('user_info').'/'.auth()->user()->id }}">Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
                             <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 Logout
                             </a>
@@ -65,7 +61,6 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li><a class="dropdown-item" href="{{ route('user_info').'/'.auth()->user()->id }}">Profile</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
@@ -83,22 +78,8 @@
     <div style="text-align: center; margin-top: 25px;">
         <img src="{{ asset('images/pic_share_logo.png') }}" alt="Pic Share logo" class="img-fluid" style="max-width: 200px;">
         <h1 style="margin-top: 15px;">Pic Share</h1>
-        <h2>Admin Page</h2>
-
-        <br>
-
-        @if (!auth()->user())
-            <h2>Please login first!</h2>
-            <p>Admin account required.</p>
-        @elseif (auth()->user()->status == 0)
-            <2>Access Denied!</2>
-            <p>This account has been banned! Mail to abcxyz@gmail.com for information or to protest the ban.</p>
-        @elseif (auth()->user()->role == 'admin')
-            <h2>Welcome back, {{ auth()->user()->name }}!</h2>
-        @else
-            <h2>Access Denied!</h2>
-            <p>Sorry, you shouldn't mean to be here! This page is for admin only.</p>
-        @endif
+        <h2 style="color: red;">Page not found!</h2>
+        <a href="{{ url('/') }}">Go back to Home</a>
     </div>
 
     <footer class="bg-body text-center p-4 fixed-bottom">
