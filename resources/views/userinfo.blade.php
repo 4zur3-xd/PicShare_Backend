@@ -9,7 +9,13 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Pic Share Admin - Dashboard</title>
+    <title>
+        @if (!$userData)
+            Pic Share User
+        @else
+            {{ $userData->name }} - Pic Share User
+        @endif
+    </title>
 
     <!-- Custom fonts for this template-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -24,6 +30,7 @@
     <!-- Page Wrapper -->
     <div id="wrapper">
 
+        @if (auth()->user()->role == 'admin')
         <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
@@ -61,6 +68,32 @@
 
         </ul>
         <!-- End of Sidebar -->
+        @else
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url('/') }}">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <img src="{{ asset('images/pic_share_logo.png') }}" style="width: 55px; height: 55px;">
+                </div>
+                <div class="sidebar-brand-text mx-3">Pic Share Account</div>
+            </a>
+
+            <hr class="sidebar-divider my-0">
+
+            <li class="nav-item active">
+                <a class="nav-link" href="">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Profile</span></a>
+            </li>
+
+            <hr class="sidebar-divider">
+
+        </ul>
+        <!-- End of Sidebar -->
+        @endif
+
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -121,7 +154,7 @@
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+                        <h1 class="h3 mb-0 text-gray-800">{{ $userData->name }}'s User Profile</h1>
                     </div>
 
                     <!-- Content Row -->
