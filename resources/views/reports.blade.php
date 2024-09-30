@@ -103,7 +103,11 @@
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
+                                @if (auth()->user())
+                                <a class="dropdown-item" href="{{ route('user_info').'/'.auth()->user()->id }}">
+                                @else
                                 <a class="dropdown-item" href="">
+                                @endif
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Profile
                                 </a>
@@ -168,14 +172,14 @@
                                             <td>
                                                 @foreach ($reportsData['reported_user_data'] as $reportedUser)
                                                     @if ($report->reported_user == $reportedUser->id)
-                                                        {{ $reportedUser->name }} (<a href="">#{{ $report->reported_user }}</a>)
+                                                        {{ $reportedUser->name }} (<a href="{{ route('user_info').'/'.$report->reported_user }}">#{{ $report->reported_user }}</a>)
                                                     @endif
                                                 @endforeach
                                             </td>
                                             <td>
                                                 @foreach ($reportsData['reporting_user_data'] as $reportingUser)
                                                     @if ($report->user_reporting == $reportingUser->id)
-                                                        {{ $reportingUser->name }} (<a href="">#{{ $report->user_reporting }}</a>)
+                                                        {{ $reportingUser->name }} (<a href="{{ route('user_info').'/'.$report->user_reporting }}">#{{ $report->user_reporting }}</a>)
                                                     @endif
                                                 @endforeach
                                             </td>

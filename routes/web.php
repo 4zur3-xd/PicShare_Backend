@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminWeb\DashboardController;
+use App\Http\Controllers\AdminWeb\UserInfoController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\WebMiddleware;
@@ -15,6 +16,8 @@ Route::get('/users/{page?}', [DashboardController::class, 'userManage'])->middle
 Route::get('/reports/{page?}', [DashboardController::class, 'reportManage'])->middleware(['auth', 'verified', WebMiddleware::class])->name('reports_manage');
 
 Route::post('ban', [DashboardController::class, 'userBan'])->middleware(['auth', 'verified', WebMiddleware::class])->name('user_ban');
+
+Route::get('/u/{id?}', [UserInfoController::class, 'index'])->middleware(['auth', 'verified'])->name('user_info');
 
 // Route::middleware('auth')->group(function () {
 //     Route::get('/profile', function () {

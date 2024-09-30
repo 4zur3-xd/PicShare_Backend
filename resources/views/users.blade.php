@@ -100,7 +100,11 @@
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
+                                @if (auth()->user())
+                                <a class="dropdown-item" href="{{ route('user_info').'/'.auth()->user()->id }}">
+                                @else
                                 <a class="dropdown-item" href="">
+                                @endif
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Profile
                                 </a>
@@ -292,7 +296,7 @@
                                             </td>
                                             <td>{{ $user->role }}</td>
                                             <td>{{ $user->created_at }}</td>
-                                            <td><a href="">Info</a></td>
+                                            <td><a href="{{ route('user_info').'/'.$user->id }}">Info</a></td>
                                         </tr>
                                         @endforeach
                                     </table>
