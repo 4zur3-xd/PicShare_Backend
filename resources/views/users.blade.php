@@ -91,11 +91,11 @@
                                         {{ auth()->user()->name }}
                                     @endif
                                 </span>
-                                <img class="img-profile rounded-circle"
-                                    src="@if (auth()->user()->url_avatar) {{ auth()->user()->url_avatar }}
-                                    @else
-                                        {{ asset('images/blank-avatar.jpg') }}
-                                    @endif">
+                                @if (auth()->user()->url_avatar)
+                                <img class="img-profile rounded-circle" src="{{ auth()->user()->url_avatar }}">
+                                @else
+                                <img class="img-profile rounded-circle" src="{{ asset('images/blank-avatar.jpg') }}">
+                                @endif
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"

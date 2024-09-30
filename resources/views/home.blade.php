@@ -91,7 +91,7 @@
             <h2>Please login first!</h2>
             <p>Admin account required.</p>
         @elseif (auth()->user()->status == 0)
-            <2>Access Denied!</2>
+            <h2>Access Denied!</h2>
             <p>This account has been banned! Mail to abcxyz@gmail.com for information or to protest the ban.</p>
         @elseif (auth()->user()->role == 'admin')
             <h2>Welcome back, {{ auth()->user()->name }}!</h2>
