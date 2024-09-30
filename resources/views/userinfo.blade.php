@@ -84,7 +84,7 @@
 
             <li class="nav-item active">
                 <a class="nav-link" href="">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <i class="fas fa-fw fa-user"></i>
                     <span>Profile</span></a>
             </li>
 
@@ -118,11 +118,11 @@
                                         {{ auth()->user()->name }}
                                     @endif
                                 </span>
-                                <img class="img-profile rounded-circle"
-                                    src="@if (auth()->user()->url_avatar) {{ auth()->user()->url_avatar }}
-                                    @else
-                                        {{ asset('images/blank-avatar.jpg') }}
-                                    @endif">
+                                @if (auth()->user()->url_avatar)
+                                <img class="img-profile rounded-circle" src="{{ auth()->user()->url_avatar }}">
+                                @else
+                                <img class="img-profile rounded-circle" src="{{ asset('images/blank-avatar.jpg') }}">
+                                @endif
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -154,7 +154,7 @@
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">{{ $userData->name }}'s User Profile</h1>
+                        <h1 class="h3 mb-0 text-gray-800" style="font-weight: bold;">{{ $userData->name }}</h1>
                     </div>
 
                     <!-- Content Row -->
@@ -166,42 +166,18 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Total Users
+                                                Created At
                                             </div>
                                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                @if (isset($headData['total_users']))
-                                                    {{ $headData['total_users'] }}
+                                                @if ($userData)
+                                                    {{ $userData->created_at }}
                                                 @else
                                                     No Data
                                                 @endif
                                             </div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-users fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-primary shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                New Users (This week)
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                @if (isset($headData['new_users']))
-                                                    {{ $headData['new_users'] }}
-                                                @else
-                                                    No Data
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -238,11 +214,35 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Total Reports
+                                                Total Reports Sent
                                             </div>
                                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                @if (isset($headData['total_reports']))
-                                                    {{ $headData['total_reports'] }}
+                                                @if (isset($headData['total_rp_sent']))
+                                                    {{ $headData['total_rp_sent'] }}
+                                                @else
+                                                    No Data
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-flag fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Total Reports Received
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                @if (isset($headData['total_rp_recv']))
+                                                    {{ $headData['total_rp_recv'] }}
                                                 @else
                                                     No Data
                                                 @endif
@@ -261,25 +261,77 @@
 
                     <div class="row">
 
-                        <!-- Area Chart -->
                         <div class="col-xl-8 col-lg-7">
                             <div class="card shadow mb-4">
                                 <!-- Card Header -->
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <a class="m-0 font-weight-bold text-primary" href="{{ route('users_manage') }}">Users Overview</a>
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">User Overview</h6>
+                                    @if ($userData->id == auth()->user()->id && auth()->user()->status == 1)
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-pencil fa-sm fa-fw"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                            aria-labelledby="dropdownMenuLink">
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editModal">Edit</a>
+                                            @if (!auth()->user()->google_id)
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editpasswordModal">Change password</a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @endif
                                 </div>
                                 <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        @if (isset($lineChartData))
-                                        <canvas id="users-overview-chart" height="90%"></canvas>
-                                        @else
-                                        <img src="{{ asset('images/line-chart-no-data.jpg') }}" style="display: block; margin: auto; height: 95%; max-width: 95%;">
-                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: black;">
-                                            <h1>No Data</h1>
-                                        </div>
+                                <div class="card-body" @if ($userData->status == 0)
+                                    style="background-color: rgba(255,0,0,0.15);"
+                                @endif>
+                                    <div>
+                                        @if ($userData->status == 0)
+                                        <h2 style="text-align: center; font-weight: bold;">This account has been banned!</h2>
                                         @endif
+                                        <table class="table">
+                                            <tr>
+                                                <td style="width: 20%;">Fullname</td>
+                                                <td><b>{{ $userData->name }}</b></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Email</td>
+                                                <td><b>
+                                                    @if ($userData->id == auth()->user()->id)
+                                                    {{ $userData->email }}
+                                                    @else
+                                                    **********@*****.***
+                                                    @endif
+                                                </b></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Email Verification</td>
+                                                <td><b>
+                                                    @if ($userData->email_verified_at)
+                                                        {{ $userData->email_verified_at }}
+                                                    @else
+                                                        Not verified
+                                                    @endif
+                                                </b></td>
+                                            </tr>
+                                            <tr>
+                                                <td>User Code</td>
+                                                <td><b>
+                                                    @if ($userData->id == auth()->user()->id)
+                                                    {{ $userData->user_code }}
+                                                    @else
+                                                    ******
+                                                    @endif
+                                                </b></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Last Update</td>
+                                                <td><b>
+                                                    {{ $userData->updated_at }}
+                                                </b></td>
+                                            </tr>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -291,20 +343,30 @@
                                 <!-- Card Header -->
                                 <div
                                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="height: 57px;">
-                                    <h6 class="m-0 font-weight-bold text-primary">Users Verification Overview</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">User's Avatar</h6>
+                                    @if ($userData->id == auth()->user()->id && auth()->user()->status == 1)
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-pencil fa-sm fa-fw"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                            aria-labelledby="dropdownMenuLink">
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editavatarModal">Edit avatar</a>
+                                            @if (auth()->user()->url_avatar)
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteavatarModal">Delete avatar</a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @endif
                                 </div>
                                 <!-- Card Body -->
-                                <div class="card-body" style="height: 360px;">
-                                    <div class="chart-pie pt-4 pb-2">
-                                        @if (isset($pieChartData))
-                                        <canvas id="users-verify-chart" style="margin: auto;"></canvas>
-                                        @else
-                                        <img src="{{ asset('images/pie-chart-no-data.jpg') }}" style="display: block; margin: auto; height: 95%;">
-                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: black;">
-                                            <h1>No Data</h1>
-                                        </div>
-                                        @endif
-                                    </div>
+                                <div class="card-body">
+                                    @if ($userData->url_avatar)
+                                    <img src="{{ $userData->url_avatar }}" style="height: 90%; width: 90%; display: block; margin: auto;">
+                                    @else
+                                    <img src="{{ asset('images/blank-avatar.jpg') }}" style="height: 90%; width: 90%; display: block; margin: auto;">
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -360,6 +422,103 @@
         </div>
     </div>
 
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Profile edit</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url()->current().'/edit' }}" method="POST" id="edit-form">
+                        @csrf
+                        Name: <input type="text" name="name" class="form-control" value="{{ auth()->user()->name }}" required>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" form="edit-form">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if ($userData->id == auth()->user()->id && auth()->user()->status == 1 && !auth()->user()->google_id)
+    <div class="modal fade" id="editpasswordModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit password</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url()->current().'/edit-password' }}" method="POST" id="editpassword-form">
+                        @csrf
+                        Old password: <input type="password" name="old_password" class="form-control" required>
+                        New password: <input type="password" name="password" class="form-control" required>
+                        Password Confirmation: <input type="password" name="password_confirmation" class="form-control" required>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" form="editpassword-form">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <div class="modal fade" id="editavatarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit avatar</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url()->current().'/edit-avatar' }}" method="POST" id="editavatar-form" enctype="multipart/form-data">
+                        @csrf
+                        <input type="file" name="url_avatar" required>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" form="editavatar-form">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if ($userData->id == auth()->user()->id && auth()->user()->status == 1 && auth()->user()->url_avatar)
+    <div class="modal fade" id="deleteavatarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Delete avatar?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="display: none;">
+                    <form action="{{ url()->current().'/delete-avatar' }}" method="POST" id="deleteavatar-form">
+                        @csrf
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" form="deleteavatar-form">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Bootstrap core JavaScript-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
@@ -367,83 +526,27 @@
     <!-- Custom scripts for all pages-->
     <script src="{{ asset('js/sb-admin-2.min.js') }}"></script>
 
-    <!-- Page level plugins -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Swal -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    @if (session('failMSG'))
     <script>
-        @if (empty($lineChartData))
-        var newUserData = [3, 0, 1, 4, 0];
-        @else
-        var newUserData = [{{ implode(',', $lineChartData) }}];
-        @endif
-        var maxDataValue = Math.max(...newUserData);
-
-        var ctx = document.getElementById("users-overview-chart");
-        var newUserChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
-                datasets: [{
-                    label: 'New Users',
-                    data: newUserData,
-                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
-                    borderColor: 'rgba(13, 110, 253, 1)',
-                    borderWidth: 2,
-                    pointRadius: 5,
-                    fill: true
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        min: 0,
-                        max: maxDataValue + 1,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                }
-            }
+        Swal.fire({
+            title: "Action Failed!",
+            text: "{{ session('failMSG') }}",
+            icon: "error"
         });
     </script>
+    @endif
 
+    @if (session('successMSG'))
     <script>
-        @if (empty($pieChartData))
-            var pieData = [7, 2];
-        @else
-        var pieData = [{{ implode(',', $pieChartData) }}];
-        @endif
-        var ctx = document.getElementById('users-verify-chart').getContext('2d');
-
-        var verificationChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Verified', 'Unverified'],
-                datasets: [{
-                    data: pieData,
-                    backgroundColor: [
-                        'rgba(13, 110, 253, 0.6)',
-                        'rgba(200, 200, 200, 0.6)'
-                    ],
-                    borderColor: [
-                        'rgba(13, 110, 253, 1)',
-                        'rgba(200, 200, 200, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    },
-                }
-            }
+        Swal.fire({
+            title: "{{ session('successMSG') }}",
+            icon: "success"
         });
     </script>
+    @endif
 
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf

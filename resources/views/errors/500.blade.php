@@ -21,57 +21,6 @@
                 <img src="{{ asset('images/pic_share_logo.png') }}" alt="Pic Share logo" width="40" height="40">
                 Pic Share
             </a>
-            @if (!auth()->user())
-                <li class="nav-item dropdown" style="list-style-type: none;">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Please Login!
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('login') }}">Login</a></li>
-                        <li><a class="dropdown-item" href="{{ route('register') }}">Register</a></li>
-                    </ul>
-                </li>
-            @elseif (auth()->user()->role == 'user' || auth()->user()->status == 0)
-                <li class="nav-item dropdown" style="list-style-type: none;">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        @if (auth()->user()->url_avatar)
-                            <img src="{{ auth()->user()->url_avatar }}" width="35px" height="35px" style="border-radius: 50%;">
-                        @else
-                            <img src="{{ asset('images/blank-avatar.jpg') }}" width="35px" height="35px" style="border-radius: 50%;">
-                        @endif
-                        {{ auth()->user()->name }}
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                Logout
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            @else
-                <li class="nav-item dropdown" style="list-style-type: none;">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        @if (auth()->user()->url_avatar)
-                            <img src="{{ auth()->user()->url_avatar }}" width="35px" height="35px" style="border-radius: 50%;">
-                        @else
-                            <img src="{{ asset('images/blank-avatar.jpg') }}" width="35px" height="35px" style="border-radius: 50%;">
-                        @endif
-                        {{ auth()->user()->name }}
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                Logout
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            @endif
         </div>
     </nav>
 

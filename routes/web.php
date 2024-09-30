@@ -17,19 +17,12 @@ Route::get('/reports/{page?}', [DashboardController::class, 'reportManage'])->mi
 
 Route::post('ban', [DashboardController::class, 'userBan'])->middleware(['auth', 'verified', WebMiddleware::class])->name('user_ban');
 
-Route::get('/u/{id?}', [UserInfoController::class, 'index'])->name('user_info');
+Route::get('/u/{id?}', [UserInfoController::class, 'index'])->middleware(['auth', 'verified'])->name('user_info');
 
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', function () {
-//         return 'Not available at the moment!';
-//     })->name('profile.edit');
-//     Route::patch('/profile', function () {
-//         return 'Not available at the moment!';
-//     })->name('profile.update');
-//     Route::delete('/profile', function () {
-//         return 'Not available at the moment!';
-//     })->name('profile.destroy');
-// });
+Route::post('/u/{id?}/edit', [UserInfoController::class, 'edit'])->middleware(['auth', 'verified']);
+Route::post('/u/{id?}/edit-password', [UserInfoController::class, 'editPassword'])->middleware(['auth', 'verified']);
+Route::post('/u/{id?}/edit-avatar', [UserInfoController::class, 'editAvatar'])->middleware(['auth', 'verified']);
+Route::post('/u/{id?}/delete-avatar', [UserInfoController::class, 'deleteAvatar'])->middleware(['auth', 'verified']);
 
 Route::get('auth/google', [GoogleAuthController::class, 'redirect'])->name('google-auth');
 Route::get('auth/callback', [GoogleAuthController::class, 'callback']);
