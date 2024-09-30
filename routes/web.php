@@ -17,7 +17,7 @@ Route::get('/reports/{page?}', [DashboardController::class, 'reportManage'])->mi
 
 Route::post('ban', [DashboardController::class, 'userBan'])->middleware(['auth', 'verified', WebMiddleware::class])->name('user_ban');
 
-Route::get('/u/{id?}', [UserInfoController::class, 'index'])->middleware(['auth', 'verified'])->name('user_info');
+Route::get('/u/{id?}', [UserInfoController::class, 'index'])->name('user_info');
 
 // Route::middleware('auth')->group(function () {
 //     Route::get('/profile', function () {

@@ -302,6 +302,7 @@
                                     </table>
                                     <ul class="pagination justify-content-end">
                                     @if (empty($_GET['search']))
+                                    @if ($usersData['total_pages'] > 1)
                                         @if ($usersData['page'] != 1)
                                         <li class="page-item"><a class="page-link" href="{{ route('users_manage').'/'.($usersData['page'] - 1) }}"><</a></li>
                                         @else
@@ -321,6 +322,11 @@
                                         @else
                                         <li class="page-item disabled"><a class="page-link" href="">></a></li>
                                         @endif
+                                    @else
+                                        <li class="page-item disabled"><a class="page-link" href=""><</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="">{{ $usersData['page'] }}</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="">></a></li>
+                                    @endif
                                     @endif
                                     </ul>
                                 </div>
