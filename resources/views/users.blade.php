@@ -17,6 +17,12 @@
     <!-- Custom styles for this template-->
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
 
+    <style>
+        #main-table td {
+            vertical-align: middle;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -37,16 +43,16 @@
 
             <hr class="sidebar-divider my-0">
 
-            <li class="nav-item active">
-                <a class="nav-link" href="">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('dashboard') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
 
             <hr class="sidebar-divider my-0">
 
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('users_manage') }}">
+            <li class="nav-item active">
+                <a class="nav-link" href="">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Users Management</span></a>
             </li>
@@ -121,7 +127,7 @@
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Users Management</h1>
                     </div>
 
                     <!-- Content Row -->
@@ -181,11 +187,11 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Total Posts
+                                                Verified - Unverified Users
                                             </div>
                                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                @if (isset($headData['total_posts']))
-                                                    {{ $headData['total_posts'] }}
+                                                @if (isset($headData['veri_users']))
+                                                    {{ $headData['veri_users'] }}
                                                 @else
                                                     No Data
                                                 @endif
@@ -205,18 +211,18 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Total Reports
+                                                Banned Users
                                             </div>
                                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                @if (isset($headData['total_reports']))
-                                                    {{ $headData['total_reports'] }}
+                                                @if (isset($headData['banned_users']))
+                                                    {{ $headData['banned_users'] }}
                                                 @else
                                                     No Data
                                                 @endif
                                             </div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-flag fa-2x text-gray-300"></i>
+                                            <i class="fas fa-ban fa-2x text-gray-300"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -228,50 +234,101 @@
 
                     <div class="row">
 
-                        <!-- Area Chart -->
-                        <div class="col-xl-8 col-lg-7">
+                        <div class="col-xl-12 col-lg-12">
                             <div class="card shadow mb-4">
                                 <!-- Card Header -->
                                 <div
                                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <a class="m-0 font-weight-bold text-primary" href="{{ route('users_manage') }}">Users Overview</a>
+                                    <h6 class="m-0 font-weight-bold text-primary" href="">Users List</h6>
                                 </div>
                                 <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        @if (isset($lineChartData))
-                                        <canvas id="users-overview-chart" height="90%"></canvas>
-                                        @else
-                                        <img src="{{ asset('images/line-chart-no-data.jpg') }}" style="display: block; margin: auto; height: 95%; max-width: 95%;">
-                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: black;">
-                                            <h1>No Data</h1>
+                                <div class="card-body" style="overflow: auto;">
+                                    <form method="get">
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" name="search" placeholder="Search for user..." required>
+                                            <button class="btn btn-primary" type="button">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                                                </svg>
+                                            </button>
                                         </div>
+                                    </form>
+                                    @if (!empty($_GET['search']))
+                                    <a class="btn btn-outline-danger" href="{{ route('users_manage') }}" style="display: inline-block; margin-bottom: 15px;">Clear search</a>
+                                    @endif
+                                    <table class="table" id="main-table">
+                                        <tr>
+                                            <th style="width: 50px;">ID</th>
+                                            <th style="width: 50px;">Img</th>
+                                            <th>Email</th>
+                                            <th>Full Name</th>
+                                            <th style="width: 50px;">Verified</th>
+                                            <th style="width: 50px;">Status</th>
+                                            <th>Role</th>
+                                            <th>Created At</th>
+                                            <th>Info</th>
+                                        </tr>
+                                        @foreach ($usersData['data'] as $user)
+                                        <tr>
+                                            <td>{{ $user->id }}</td>
+                                            <td>
+                                            @if (!$user->url_avatar)
+                                                <img src="{{ asset('images/blank-avatar.jpg') }}" style="height: 48px; width: 48px;">
+                                            @else
+                                                <img src="{{ $user->url_avatar }}" style="height: 48px; width: 48px;">
+                                            @endif
+                                            </td>
+                                            <td>{{ $user->email }}</td>
+                                            <td>{{ $user->name }}</td>
+                                            <td>
+                                            @if (!$user->email_verified_at)
+                                                No
+                                            @else
+                                                <span style="color: violet;">Yes</span>
+                                            @endif
+                                            </td>
+                                            <td>
+                                            @if ($user->status)
+                                                <span style="color: yellowgreen;">Active</span>
+                                            @else
+                                                <span style="color: red;">Banned</span>
+                                            @endif
+                                            </td>
+                                            <td>{{ $user->role }}</td>
+                                            <td>{{ $user->created_at }}</td>
+                                            <td><a href="{{ route('user_info').'/'.$user->id }}">Info</a></td>
+                                        </tr>
+                                        @endforeach
+                                    </table>
+                                    <ul class="pagination justify-content-end">
+                                    @if (empty($_GET['search']))
+                                    @if ($usersData['total_pages'] > 1)
+                                        @if ($usersData['page'] != 1)
+                                        <li class="page-item"><a class="page-link" href="{{ route('users_manage').'/'.($usersData['page'] - 1) }}"><</a></li>
+                                        @else
+                                        <li class="page-item disabled"><a class="page-link" href=""><</a></li>
                                         @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Pie Chart -->
-                        <div class="col-xl-4 col-lg-5">
-                            <div class="card shadow mb-4">
-                                <!-- Card Header -->
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="height: 57px;">
-                                    <h6 class="m-0 font-weight-bold text-primary">Users Verification Overview</h6>
-                                </div>
-                                <!-- Card Body -->
-                                <div class="card-body" style="height: 360px;">
-                                    <div class="chart-pie pt-4 pb-2">
-                                        @if (isset($pieChartData))
-                                        <canvas id="users-verify-chart" style="margin: auto;"></canvas>
+                                        @for ($i = 1; $i <= $usersData['total_pages']; $i++)
+                                            @if ($i == $usersData['page'])
+                                        <li class="page-item disabled"><a class="page-link" href="">{{ $i }}</a></li>
+                                            @else
+                                        <li class="page-item"><a class="page-link" href="{{ route('users_manage').'/'.$i }}">{{ $i }}</a></li>
+                                            @endif
+                                        @endfor
+
+                                        @if ($usersData['page'] != $usersData['total_pages'])
+                                        <li class="page-item"><a class="page-link" href="{{ route('users_manage').'/'.($usersData['page'] + 1) }}">></a></li>
                                         @else
-                                        <img src="{{ asset('images/pie-chart-no-data.jpg') }}" style="display: block; margin: auto; height: 95%;">
-                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: black;">
-                                            <h1>No Data</h1>
-                                        </div>
+                                        <li class="page-item disabled"><a class="page-link" href="">></a></li>
                                         @endif
-                                    </div>
+                                    @else
+                                        <li class="page-item disabled"><a class="page-link" href=""><</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="">{{ $usersData['page'] }}</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="">></a></li>
+                                    @endif
+                                    @endif
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -336,81 +393,6 @@
 
     <!-- Page level plugins -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <script>
-        @if (empty($lineChartData))
-        var newUserData = [3, 0, 1, 4, 0];
-        @else
-        var newUserData = [{{ implode(',', $lineChartData) }}];
-        @endif
-        var maxDataValue = Math.max(...newUserData);
-
-        var ctx = document.getElementById("users-overview-chart");
-        var newUserChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
-                datasets: [{
-                    label: 'New Users',
-                    data: newUserData,
-                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
-                    borderColor: 'rgba(13, 110, 253, 1)',
-                    borderWidth: 2,
-                    pointRadius: 5,
-                    fill: true
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        min: 0,
-                        max: maxDataValue + 1,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                }
-            }
-        });
-    </script>
-
-    <script>
-        @if (empty($pieChartData))
-            var pieData = [7, 2];
-        @else
-        var pieData = [{{ implode(',', $pieChartData) }}];
-        @endif
-        var ctx = document.getElementById('users-verify-chart').getContext('2d');
-
-        var verificationChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Verified', 'Unverified'],
-                datasets: [{
-                    data: pieData,
-                    backgroundColor: [
-                        'rgba(13, 110, 253, 0.6)',
-                        'rgba(200, 200, 200, 0.6)'
-                    ],
-                    borderColor: [
-                        'rgba(13, 110, 253, 1)',
-                        'rgba(200, 200, 200, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    },
-                }
-            }
-        });
-    </script>
 
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
