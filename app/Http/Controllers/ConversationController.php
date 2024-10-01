@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Helper\ResponseHelper;
 use App\Http\Requests\StoreConversationRequest;
-use App\Http\Requests\UpdateConversationRequest;
 use App\Http\Resources\ConversationResource;
 use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
@@ -28,7 +27,8 @@ class ConversationController extends Controller
         })
             ->with(['messages' => function ($query) {
                 $query->latest()->take(1);
-            }])
+            }, 'users'])
+            ->orderBy('updated_at', 'desc')
             ->get();
 
         // Calculate the number of unread messages for each conversation
@@ -41,10 +41,15 @@ class ConversationController extends Controller
 
             $conversation->unread_count = $unreadCount;
 
-            // Chuyển đổi Last_message sang MessageResource
+            // Identify friends (other people in the conversation)
+            $friend = $conversation->users->filter(function ($u) use ($user) {
+                return $u->id !== $user->id; // Filter out people who are not currentUser
+            })->first();
+
+            // Convert Last_message to MessageResource
             $lastMessage = $conversation->messages->first() ? new MessageResource($conversation->messages->first()) : null;
 
-            return new ConversationResource($conversation, $lastMessage);
+            return new ConversationResource($conversation, $lastMessage, $user, $friend);
         });
         // Count the number of conversations that have at least one unread message
         $unreadConversationsCount = $conversationsWithUnreadCount->filter(function ($conversation) {
