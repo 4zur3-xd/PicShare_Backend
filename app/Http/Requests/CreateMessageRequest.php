@@ -23,11 +23,12 @@ class CreateMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'conversation_id' => 'nullable|exists:conversations,id',
             'user_id' => 'nullable|exists:users,id',
             'text' => 'nullable|string',
             'url_image' => 'nullable|string',
             'message_type' => 'required|in:' . implode(',', MessageType::getValues()),
-            'height' => ['nullable', 'double'],
+            'height' => ['nullable', 'double'], 
             'width' => ['nullable', 'double'],
         ];
     }

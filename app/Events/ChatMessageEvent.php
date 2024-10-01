@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Http\Resources\MessageResource;
 use App\Models\Message;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -15,7 +16,6 @@ use Illuminate\Queue\SerializesModels;
 class ChatMessageEvent implements ShouldBroadcast, ShouldDispatchAfterCommit
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $shouldQueue = false;
 
     public  Message $message;
     /**
@@ -41,5 +41,10 @@ class ChatMessageEvent implements ShouldBroadcast, ShouldDispatchAfterCommit
     public function broadcastAs()
     {
         return 'chat.message.sent';
+    }
+
+    public function broadcastWith()
+    {
+        return (new MessageResource($this->message))->toArray(request());
     }
 }

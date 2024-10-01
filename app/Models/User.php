@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
@@ -58,8 +58,6 @@ class User extends Authenticatable
         ];
     }
 
-
-
     public static function boot()
     {
         parent::boot();
@@ -74,8 +72,6 @@ class User extends Authenticatable
             }
         });
     }
-
-
 
     public function toArray()
     {
@@ -97,11 +93,11 @@ class User extends Authenticatable
             ],
         ];
     }
-    public function userLog():HasOne
+    public function userLog(): HasOne
     {
         return $this->hasOne(UserLog::class);
     }
-    public function friends():HasMany
+    public function friends(): HasMany
     {
         return $this->hasMany(Friend::class);
     }
@@ -109,11 +105,11 @@ class User extends Authenticatable
     public function conversations(): BelongsToMany
     {
         return $this->belongsToMany(Conversation::class, 'user_conversations')
-                    ->withTimestamps(); 
+            ->withTimestamps();
     }
 
     public function messages(): HasMany
-{
-    return $this->hasMany(Message::class);
-}
+    {
+        return $this->hasMany(Message::class);
+    }
 }
