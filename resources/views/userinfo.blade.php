@@ -298,7 +298,7 @@
                                             <tr>
                                                 <td>Email</td>
                                                 <td><b>
-                                                    @if ($userData->id == auth()->user()->id)
+                                                    @if ($userData->id == auth()->user()->id || auth()->user()->role == 'admin')
                                                     {{ $userData->email }}
                                                     @else
                                                     **********@*****.***
@@ -318,7 +318,7 @@
                                             <tr>
                                                 <td>User Code</td>
                                                 <td><b>
-                                                    @if ($userData->id == auth()->user()->id)
+                                                    @if ($userData->id == auth()->user()->id || auth()->user()->role == 'admin')
                                                     {{ $userData->user_code }}
                                                     @else
                                                     ******
