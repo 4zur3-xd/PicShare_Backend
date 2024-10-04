@@ -66,10 +66,10 @@ class MessageController extends Controller
             $this->broadcastChatMessage($message);
 
             DB::commit();
-            return ResponseHelper::success(message: "Create conversation successfully", data: $message, status: 201);
+            return ResponseHelper::success(message: "Send message successfully", data: $message, status: 201);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return ResponseHelper::error(message: "Create conversation failed", );
+            return ResponseHelper::error(message: "Send message failed", );
         }
 
     }
