@@ -34,13 +34,12 @@ class ConversationCreatedEvent implements ShouldBroadcast, ShouldDispatchAfterCo
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     *  \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn(): array
+    public function broadcastOn()
     {
-        return [
-            new PrivateChannel('chat.user.' . $this->receiverId),
-        ];
+        return new Channel('chat.user.'. $this->receiverId);
+
     }
     public function broadcastAs()
     {
