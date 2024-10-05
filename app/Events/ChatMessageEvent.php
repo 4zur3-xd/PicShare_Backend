@@ -29,13 +29,12 @@ class ChatMessageEvent implements ShouldBroadcast, ShouldDispatchAfterCommit
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     *  \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn(): array
+    public function broadcastOn()
     {
-        return [
-            new PrivateChannel('chat.room.'.$this->message->conversation_id),
-        ];
+        return new Channel('chat.room.'.$this->message->conversation_id);
+
     }
 
     public function broadcastAs()
