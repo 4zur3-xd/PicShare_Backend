@@ -38,8 +38,10 @@ class ConversationCreatedEvent implements ShouldBroadcast, ShouldDispatchAfterCo
      */
     public function broadcastOn()
     {
-        return new Channel('chat.user.'. $this->receiverId);
-
+        return [
+            new Channel('chat.user.'. $this->receiverId),
+            new Channel('chat.user.'. $this->currentUser->id),
+        ];
     }
     public function broadcastAs()
     {
@@ -49,7 +51,7 @@ class ConversationCreatedEvent implements ShouldBroadcast, ShouldDispatchAfterCo
     public function broadcastWith()
     {
         $lastMessage = $this->conversation->messages->last();
-        $friend = $this->conversation->users->where('user_id', '!=', $this->currentUser->id)->first();
+        $friend = $this->conversation->users->where('id', '!=', $this->currentUser->id)->first();
 
         return (new ConversationResource($this->conversation, $lastMessage, $this->currentUser, $friend))->toArray(request());
     }
