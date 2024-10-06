@@ -6,6 +6,7 @@ use App\Events\ChatMessageEvent;
 use App\Events\ConversationCreatedEvent;
 use App\Helper\ResponseHelper;
 use App\Http\Requests\CreateMessageRequest;
+use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
@@ -62,11 +63,18 @@ class MessageController extends Controller
                 'width' => $validatedData['width'] ?? null,
             ]);
 
+            $conversation->touch();  // update field 'updated_at' in conversation record
+
             // Broadcast events for real-time updates via Pusher
+            // $message->created_at = $message->created_at->setTimezone(config('app.timezone'));
+            // $message->updated_at = $message->updated_at->setTimezone(config('app.timezone'));
             $this->broadcastChatMessage($message);
 
             DB::commit();
-            return ResponseHelper::success(message: "Send message successfully", data: $message, status: 201);
+            return ResponseHelper::success(message: "Send message successfully",
+                data: new MessageResource($message),
+                status: 201
+            );
         } catch (\Throwable $th) {
             DB::rollBack();
             return ResponseHelper::error(message: "Send message failed", );
