@@ -294,7 +294,7 @@ class PostController extends Controller
             $friendId = $request->query('friend_id');
 
             $postsQuery = Post::query()
-                ->select('posts.id', 'posts.user_id', 'posts.url_image', 'posts.caption', 'posts.cmt_count', 'posts.like_count', 'posts.is_deleted', 'posts.type', 'posts.created_at', 'posts.updated_at')
+                ->select('posts.id', 'posts.user_id', 'posts.url_image', 'posts.caption', 'posts.cmt_count', 'posts.like_count', 'posts.is_deleted', 'posts.type', 'posts.created_at', 'posts.updated_at','posts.latitude','posts.longitude')
                 ->with('user') // Eager load user information
                 ->where(function ($query) use ($currentUserId) {
 
@@ -354,6 +354,8 @@ class PostController extends Controller
                     'type' => $post->type,
                     'created_at' => $post->created_at,
                     'updated_at' => $post->updated_at,
+                    'latitude' => $post->latitude,
+                    'longitude' => $post->longitude,
                 ];
 
                 // If the current user is the owner of the post, add user_views
@@ -420,5 +422,21 @@ class PostController extends Controller
         }
 
         return $data;
+    }
+
+    public function getPostsWithLocation()
+    {
+        try {
+            $posts = Post::with('user')
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->get();
+
+            $response = PostResource::collection($posts);
+            return ResponseHelper::success(data: $response);
+        } catch (\Throwable $th) {
+            return ResponseHelper::error(message: $th->getMessage());
+        }
+
     }
 }

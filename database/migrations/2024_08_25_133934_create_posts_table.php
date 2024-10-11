@@ -22,6 +22,8 @@ return new class extends Migration
             $table->integer('like_count')->default(0);
             $table->boolean('is_deleted')->default(false);
             $table->enum('type', SharedPostType::getValues())->default(SharedPostType::ALL_FRIENDS);
+            $table->double('latitude')->nullable();
+            $table->double('longitude')->nullable();
             $table->timestamps();
         });
     }
