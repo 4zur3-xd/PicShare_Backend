@@ -62,8 +62,11 @@ Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('post')-
     Route::delete('delete/{id}', [PostController::class, 'destroy'])->name('post.destroy');
     Route::get('post_histories', [PostController::class, 'getPostHistories']);
     Route::get('posts_for_user', [PostController::class, 'postsForUser']);
+    Route::get('posts_with_geolocation', [PostController::class, 'getPostsWithLocation']);
     // detail 
     Route::get('{id}', [PostController::class, 'detail'])->name('post.detail');
+
+   
     
     Route::get('{id}/viewers', [PostController::class, 'getUserView']);
     Route::get('{id}/likers', [PostController::class, 'getUserLike']);

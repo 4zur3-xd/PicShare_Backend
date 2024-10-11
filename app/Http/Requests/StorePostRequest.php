@@ -27,6 +27,8 @@ class StorePostRequest extends FormRequest
             'url_image' => ['required', 'image', 'max:2048'],
             'caption' => [ 'max:255'],
             'type' => ['required', 'string'],
+            'latitude' => ['nullable', 'numeric'],
+            'logitude' => ['nullable', 'numeric'],
             'shared_with' => ['array'],
             'shared_with.*' => ['integer', 'exists:users,id'],
         ];

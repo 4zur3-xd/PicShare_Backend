@@ -17,6 +17,8 @@ class Post extends Model
         'like_count',
         'is_deleted',
         'type',
+        'latitude',
+        'longitude',
     ];
     public function user()
     {
