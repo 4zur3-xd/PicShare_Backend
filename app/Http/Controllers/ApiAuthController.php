@@ -69,17 +69,12 @@ class ApiAuthController extends Controller
                 $user = User::where('email', $request->email)->first();
 
                 if(!$user || !Hash::check($request->password, $user->password)){
-                    return 
-                    ResponseHelper::error(message: 'Wrong password.');
+                    return ResponseHelper::error(message: 'Wrong password.');
                 }else{
                     $authToken = $user->createToken('auth_token')->plainTextToken;
                     $userArray = $user->toArray();
                     $userArray['access_token'] = $authToken;
-                    if ($user->status == 0) {
-                        Auth::logout(); 
-                        $msg = 'This account has been banned! Mail to ' . env('ADMIN_EMAIL', 'admin@picshare.com') . ' for information or to protest the ban.';
-                        return ResponseHelper::error(message: $msg, statusCode: 403);
-                    }
+
                     return [
                         'status' => true,
                         'user' => $userArray,
@@ -101,8 +96,7 @@ class ApiAuthController extends Controller
                 'message' => "Logout successfully"
             ];
         } catch (\Throwable $th) {
-            return 
-            ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: $th->getMessage());
         }
     }
 }

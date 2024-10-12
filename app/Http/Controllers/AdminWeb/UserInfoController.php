@@ -100,6 +100,14 @@ class UserInfoController extends Controller
                 return redirect()->back()->with('failMSG', $failMSG['url_avatar'][0]);
             }
 
+            $oldUrl = str_replace('/storage/', '', $request->user()->url_avatar);
+            $delete = Storage::disk('public')->delete($oldUrl);
+
+            if(!$delete){
+                $msg = 'Something wrong when deleting image!';
+                return view('errors.500')->with('error_info', $msg);
+            }
+
             $imageFile = $request->file('url_avatar');
             $fullUrl = ImageHelper::saveAndGenerateUrl($imageFile, 'public/images');
 

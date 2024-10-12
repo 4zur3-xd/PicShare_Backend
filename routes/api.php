@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppealController;
 use App\Http\Controllers\GetReportsController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\BanStatusMiddleware;
@@ -39,9 +40,7 @@ Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->group(function(
 
 // nofitications
 Route::post('/set_fcm_token', [FirebasePushController::class, 'setToken'])->middleware(['auth:sanctum', BanStatusMiddleware::class]);
-
 Route::post('/send_notification', [FirebasePushController::class, 'sendNotification']);
-
 Route::post('/send_bulk_notification', [FirebasePushController::class, 'sendNotificationToMultipleDevice']);
 
 // friends
@@ -66,8 +65,6 @@ Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('post')-
     // detail 
     Route::get('{id}', [PostController::class, 'detail'])->name('post.detail');
 
-   
-    
     Route::get('{id}/viewers', [PostController::class, 'getUserView']);
     Route::get('{id}/likers', [PostController::class, 'getUserLike']);
 
@@ -78,8 +75,6 @@ Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('post')-
 
     Route::post('{id}/report', [PostController::class, 'postReport']);
 
-    
-    
     // comment
     Route::prefix('{postId}/comments')->group(function () {
         Route::get('/', [CommentController::class, 'index'])->name('comment.index');
@@ -108,11 +103,12 @@ Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('notific
     Route::post('/mark_as_seen', [NotificationController::class, 'markAllAsSeen']);
 }); 
 
-
 // conversations
 Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('conversations')->group(function (){
     Route::get('/', [ConversationController::class, 'index']);
     Route::get('{id}/messages', [ConversationController::class, 'getMessages']);
     Route::post('/send_message', [MessageController::class, 'store']);
     Route::post('{id}/mark-all-as-read', [ConversationController::class, 'markAllMessagesAsRead']);
-}); 
+});
+
+Route::middleware('auth:sanctum')->post('appeals', [AppealController::class, 'store']);

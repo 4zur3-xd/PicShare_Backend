@@ -3,7 +3,6 @@
 use App\Http\Controllers\AdminWeb\DashboardController;
 use App\Http\Controllers\AdminWeb\UserInfoController;
 use App\Http\Controllers\GoogleAuthController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\WebMiddleware;
 use Illuminate\Support\Facades\Route;
 

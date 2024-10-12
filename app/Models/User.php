@@ -104,8 +104,7 @@ class User extends Authenticatable
 
     public function conversations(): BelongsToMany
     {
-        return $this->belongsToMany(Conversation::class, 'user_conversations')
-            ->withTimestamps();
+        return $this->belongsToMany(Conversation::class, 'user_conversations')->withTimestamps();
     }
 
     public function messages(): HasMany
