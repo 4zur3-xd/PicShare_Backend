@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 class ApiAuthController extends Controller
@@ -74,6 +75,11 @@ class ApiAuthController extends Controller
                     $authToken = $user->createToken('auth_token')->plainTextToken;
                     $userArray = $user->toArray();
                     $userArray['access_token'] = $authToken;
+                    if ($user->status == 0) {
+                        Auth::logout(); 
+                        $msg = 'This account has been banned! Mail to ' . env('ADMIN_EMAIL', 'admin@picshare.com') . ' for information or to protest the ban.';
+                        return ResponseHelper::error(message: $msg, statusCode: 403);
+                    }
                     return [
                         'status' => true,
                         'user' => $userArray,
