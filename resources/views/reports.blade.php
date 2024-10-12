@@ -296,7 +296,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <img src="{{ asset($post->url_image) }}" style="display: block; margin:auto; width: 75%;">
+                <img src="{{ asset($post->url_image) }}" style="display: block; margin:auto; width: 75%; margin-bottom: 25px;">
                 <p>
                     Caption: <b>{{ $post->caption }}</b>
                 </p>
@@ -304,9 +304,23 @@
                     Posted at <b>{{ $post->created_at }}</b>
                 </small></p>
             </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" type="button" onclick="deletePost{{ $post->id }}()">Delete This Post</button>
+            </div>
           </div>
         </div>
     </div>
+    <form id="deletePost{{ $post->id }}" action="{{ route('post_delete') }}" method="POST" style="display: none;">
+        @csrf
+        <input type="hidden" name="post_id" value="{{ $post->id }}">
+    </form>
+    <script>
+        function deletePost{{ $post->id }}(){
+            if (confirm('Are you sure you want to delete this post?')) {
+                document.getElementById('deletePost{{ $post->id }}').submit();
+            }
+        }
+    </script>
     @endforeach
 
     @foreach ($reportsData['reported_user_data'] as $reportedUser)

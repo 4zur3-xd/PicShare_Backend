@@ -16,6 +16,7 @@ Route::get('/users/{page?}', [DashboardController::class, 'userManage'])->middle
 Route::get('/reports/{page?}', [DashboardController::class, 'reportManage'])->middleware(['auth', 'verified', WebMiddleware::class])->name('reports_manage');
 
 Route::post('ban', [DashboardController::class, 'userBan'])->middleware(['auth', 'verified', WebMiddleware::class])->name('user_ban');
+Route::post('post-delete', [DashboardController::class, 'postDelete'])->middleware(['auth', 'verified', WebMiddleware::class])->name('post_delete');
 
 Route::get('/u/{id?}', [UserInfoController::class, 'index'])->middleware(['auth', 'verified'])->name('user_info');
 
