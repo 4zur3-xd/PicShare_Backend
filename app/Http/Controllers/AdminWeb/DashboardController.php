@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Report;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -174,6 +175,26 @@ class DashboardController extends Controller
             $target->status = 0;
             $target->save();
             Post::where('user_id', $_POST['user_id'])->delete();
+
+            return redirect()->back();
+        } catch (\Throwable $th) {
+            return view('errors.500')->with('error_info', $th->getMessage());
+        }
+    }
+
+    public function postDelete()
+    {
+        try {
+            $imgUrl = Post::where('id', $_POST['post_id'])->first()->url_image;
+            Post::where('id', $_POST['post_id'])->delete();
+
+            $imgUrl = str_replace('/storage/', '', $imgUrl);
+            $delete = Storage::disk('public')->delete($imgUrl);
+
+            if(!$delete){
+                $msg = 'Something wrong when deleting image!';
+                return view('errors.500')->with('error_info', $msg);
+            }
 
             return redirect()->back();
         } catch (\Throwable $th) {
