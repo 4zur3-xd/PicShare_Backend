@@ -49,6 +49,15 @@ class PostController extends Controller
             $dataCreate['user_id'] = auth()->user()->id;
             $dataCreate['url_image'] = $fullUrl;
 
+              // Ensure latitude and longitude are converted to double if they exist
+        if (isset($dataCreate['latitude'])) {
+            $dataCreate['latitude'] = (double) $dataCreate['latitude'];
+        }
+
+        if (isset($dataCreate['longitude'])) {
+            $dataCreate['longitude'] = (double) $dataCreate['longitude'];
+        }
+
             $post = Post::create($dataCreate);
 
             if (!$post || !$post->wasRecentlyCreated) {
@@ -134,8 +143,11 @@ class PostController extends Controller
     {
         try {
             $perPage = $request->get('per_page', 18);
+            
+             // Get user_id from the query string; if not provided, use Auth::id()
+            $userId = $request->query('user_id', Auth::id());
 
-            $posts = Post::where('user_id', Auth::id())
+            $posts = Post::where('user_id', $userId)
                 ->paginate($perPage);
 
             $dataCollection = PostResource::collection($posts);
@@ -439,4 +451,5 @@ class PostController extends Controller
         }
 
     }
+
 }

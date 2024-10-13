@@ -13,6 +13,7 @@ use App\Http\Requests\StoreFriendRequest;
 use App\Http\Requests\StoreNotificationRequest;
 use App\Http\Requests\UpdateFriendRequest;
 use App\Http\Resources\FriendResource;
+use App\Http\Resources\UserSummaryResource;
 use App\Models\Friend;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -175,6 +176,46 @@ class FriendController extends Controller
         }
     }
 
+    public function getMutualFriends($friendId)
+    {
+        try {
+            $currentUserId = auth()->user()->id;
+            // Get current user's friends list
+            $friendsOfUserA = Friend::where(function ($query) use ($currentUserId) {
+                $query->where('user_id', $currentUserId)
+                    ->orWhere('friend_id', $currentUserId);
+            })->where('status', FriendStatus::FRIEND)
+                ->get(['user_id', 'friend_id']);
+
+            // Get User friend's friends list
+            $friendsOfUserB = Friend::where(function ($query) use ($friendId) {
+                $query->where('user_id', $friendId)
+                    ->orWhere('friend_id', $friendId);
+            })->where('status', FriendStatus::FRIEND)
+                ->get(['user_id', 'friend_id']);
+
+            // Find both friends IDs
+            $friendIdsOfUserA = $friendsOfUserA->map(function ($friend) use ($currentUserId) {
+                return $friend->user_id == $currentUserId ? $friend->friend_id : $friend->user_id;
+            });
+
+            $friendIdsOfUserB = $friendsOfUserB->map(function ($friend) use ($friendId) {
+                return $friend->user_id == $friendId ? $friend->friend_id : $friend->user_id;
+            });
+
+            // Find intersection of friend list
+            $mutualFriendIds = $friendIdsOfUserA->intersect($friendIdsOfUserB);
+
+            // Get details of mutual friends
+            $mutualFriends = User::whereIn('id', $mutualFriendIds)->get();
+
+            $reponse = UserSummaryResource::collection($mutualFriends);
+            return ResponseHelper::success(data: $reponse);
+        } catch (\Throwable $th) {
+            return ResponseHelper::error(message: $th->getMessage());
+        }
+    }
+
     /**
      * Send friend request notification
      */
@@ -199,8 +240,8 @@ class FriendController extends Controller
             'link_to' => $linkTo,
             'notification_type' => NotificationType::USER,
         ]);
-       $notification=  $this->notificationController->store($request);
-       $notificationId = $notification ? $notification->id : null;
+        $notification = $this->notificationController->store($request);
+        $notificationId = $notification ? $notification->id : null;
         if ($fcmToken) {
             $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar, $friendType, $notificationId);
             $this->firebasePushController->sendNotification(new Request($notificationData));
@@ -211,7 +252,7 @@ class FriendController extends Controller
     /**
      * Prepare notification data for Firebase
      */
-    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl, FriendType $friendType,$notificationId)
+    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl, FriendType $friendType, $notificationId)
     {
         return NotificationHelper::createNotificationData(
             fcmToken: $fcmToken,
