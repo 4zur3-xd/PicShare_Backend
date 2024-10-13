@@ -53,6 +53,7 @@ Route::middleware(['auth:sanctum', BanStatusMiddleware::class])->prefix('friend'
     Route::get('get_friends', [FriendController::class, 'getFriends'])->name('friend.index');
     Route::get('get_requested_friends', [FriendController::class, 'getRequestedFriends'])->name('friend.requested');
     Route::get('get_sent_friends', [FriendController::class, 'getSentFriends'])->name('friend.sent');
+    Route::get('get_mutual_friends/{friendId}', [FriendController::class, 'getMutualFriends'])->name('friend.mutual');
 });
 
 // post

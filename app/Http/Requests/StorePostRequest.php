@@ -28,7 +28,7 @@ class StorePostRequest extends FormRequest
             'caption' => [ 'max:255'],
             'type' => ['required', 'string'],
             'latitude' => ['nullable', 'numeric'],
-            'logitude' => ['nullable', 'numeric'],
+            'longitude' => ['nullable', 'numeric'],
             'shared_with' => ['array'],
             'shared_with.*' => ['integer', 'exists:users,id'],
         ];

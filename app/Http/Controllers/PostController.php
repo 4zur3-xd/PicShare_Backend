@@ -49,6 +49,15 @@ class PostController extends Controller
             $dataCreate['user_id'] = auth()->user()->id;
             $dataCreate['url_image'] = $fullUrl;
 
+            // Ensure latitude and longitude are converted to double if they exist
+            if (isset($dataCreate['latitude'])) {
+                $dataCreate['latitude'] = (double) $dataCreate['latitude'];
+            }
+
+            if (isset($dataCreate['longitude'])) {
+                $dataCreate['longitude'] = (double) $dataCreate['longitude'];
+            }
+
             $post = Post::create($dataCreate);
 
             if (!$post || !$post->wasRecentlyCreated) {
@@ -135,7 +144,10 @@ class PostController extends Controller
         try {
             $perPage = $request->get('per_page', 18);
 
-            $posts = Post::where('user_id', Auth::id())
+            // Get user_id from the query string; if not provided, use Auth::id()
+            $userId = $request->query('user_id', Auth::id());
+
+            $posts = Post::where('user_id', $userId)
                 ->paginate($perPage);
 
             $dataCollection = PostResource::collection($posts);
@@ -294,7 +306,7 @@ class PostController extends Controller
             $friendId = $request->query('friend_id');
 
             $postsQuery = Post::query()
-                ->select('posts.id', 'posts.user_id', 'posts.url_image', 'posts.caption', 'posts.cmt_count', 'posts.like_count', 'posts.is_deleted', 'posts.type', 'posts.created_at', 'posts.updated_at','posts.latitude','posts.longitude')
+                ->select('posts.id', 'posts.user_id', 'posts.url_image', 'posts.caption', 'posts.cmt_count', 'posts.like_count', 'posts.is_deleted', 'posts.type', 'posts.created_at', 'posts.updated_at', 'posts.latitude', 'posts.longitude')
                 ->with('user') // Eager load user information
                 ->where(function ($query) use ($currentUserId) {
 
@@ -439,4 +451,5 @@ class PostController extends Controller
         }
 
     }
+
 }
