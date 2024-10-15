@@ -436,16 +436,24 @@ class PostController extends Controller
         return $data;
     }
 
-    public function getPostsWithLocation()
+    public function getPostsWithLocation(Request $request)
     {
         try {
-            $posts = Post::with('user')
-                ->whereNotNull('latitude')
-                ->whereNotNull('longitude')
-                ->get();
+            $user = auth()->user();
 
-            $response = PostResource::collection($posts);
-            return ResponseHelper::success(data: $response);
+        if (!$user) {
+            return ResponseHelper::error(message: 'Unauthorized', statusCode: 401);
+        }
+
+        $posts = Post::with('user')
+            ->where('user_id', $user->id) 
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get();
+
+        // Trả về dữ liệu dưới dạng PostResource
+        $response = PostResource::collection($posts);
+        return ResponseHelper::success(data: $response);
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: $th->getMessage());
         }

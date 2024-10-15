@@ -24,7 +24,7 @@ class StorePostRequest extends FormRequest
     {
         return [
             //
-            'url_image' => ['required', 'image', 'max:2048'],
+            'url_image' => ['required', 'file','image', 'max:10240'],
             'caption' => [ 'max:255'],
             'type' => ['required', 'string'],
             'latitude' => ['nullable', 'numeric'],
