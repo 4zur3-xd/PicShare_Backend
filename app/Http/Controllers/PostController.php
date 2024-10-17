@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enum\FriendStatus;
 use App\Enum\SharedPostType;
+use App\Events\PostEvent;
 use App\Helper\ImageHelper;
 use App\Helper\ResponseHelper;
 use App\Http\Requests\StorePostRequest;
@@ -12,6 +13,7 @@ use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostDetailResource;
 use App\Http\Resources\PostResource;
 use App\Http\Resources\UserSummaryResource;
+use App\Models\Friend;
 use App\Models\Post;
 use App\Models\Report;
 use App\Models\SharedPostWith;
@@ -39,6 +41,8 @@ class PostController extends Controller
     {
         DB::beginTransaction();
         try {
+            $user = auth()->user();
+
             // Get the image file from the request
             $imageFile = $request->file('url_image');
 
@@ -46,7 +50,7 @@ class PostController extends Controller
             $fullUrl = ImageHelper::saveAndGenerateUrl($imageFile);
 
             $dataCreate = $request->all();
-            $dataCreate['user_id'] = auth()->user()->id;
+            $dataCreate['user_id'] = $user->id;
             $dataCreate['url_image'] = $fullUrl;
 
             // Ensure latitude and longitude are converted to double if they exist
@@ -66,7 +70,7 @@ class PostController extends Controller
 
             // Find UserLog or create new if not exists
             $userLog = UserLog::firstOrCreate(
-                ['user_id' => $request->user()->id]
+                ['user_id' => $user->id]
             );
             $userLog->increment('total_post');
 
@@ -80,11 +84,25 @@ class PostController extends Controller
                 }
             }
             DB::commit();
+
+            // send event
+           $this->sentPostCreationEvent($dataCreate['type'], $post);
             return ResponseHelper::success(message: "Create post successfully", data: $post);
         } catch (\Throwable $th) {
             DB::rollback();
             return ResponseHelper::error(message: $th->getMessage());
         }
+    }
+
+
+    private function getFriendsForPost($user)
+    {
+        return Friend::where(function ($query) use ($user) {
+            $query->where('user_id', $user->id)
+                ->orWhere('friend_id', $user->id);
+        })->where('status', FriendStatus::FRIEND)
+            ->pluck('friend_id') // Lấy danh sách ID bạn bè
+            ->toArray();
     }
 
     /**
@@ -392,6 +410,44 @@ class PostController extends Controller
         }
 
     }
+ 
+    public function getPostsWithLocation(Request $request)
+    {
+        try {
+            $user = auth()->user();
+
+            if (!$user) {
+                return ResponseHelper::error(message: 'Unauthorized', statusCode: 401);
+            }
+
+            $posts = Post::with('user')
+                ->where('user_id', $user->id)
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->get();
+
+            $response = PostResource::collection($posts);
+            return ResponseHelper::success(data: $response);
+        } catch (\Throwable $th) {
+            return ResponseHelper::error(message: $th->getMessage());
+        }
+
+    }
+
+    // helper methods
+    public function sentPostCreationEvent($type, $post){
+        $user = auth()->user();
+              
+        if (empty($sharedWith) && $type == SharedPostType::ALL_FRIENDS) {
+            $sharedWith = $this->getFriendsForPost($user);
+        }
+
+     
+        $postWithRelations = Post::with(['user', 'comments.user', 'comments.replies.user'])->find($post->id);
+        $postDetailResource = new PostDetailResource($postWithRelations);
+        
+        event(new PostEvent($postDetailResource, $sharedWith));
+    }
     public function getUserViewsData($postId, $currentUserId)
     {
         // Fetch user views for a specific post
@@ -434,30 +490,6 @@ class PostController extends Controller
         }
 
         return $data;
-    }
-
-    public function getPostsWithLocation(Request $request)
-    {
-        try {
-            $user = auth()->user();
-
-        if (!$user) {
-            return ResponseHelper::error(message: 'Unauthorized', statusCode: 401);
-        }
-
-        $posts = Post::with('user')
-            ->where('user_id', $user->id) 
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->get();
-
-        // Trả về dữ liệu dưới dạng PostResource
-        $response = PostResource::collection($posts);
-        return ResponseHelper::success(data: $response);
-        } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
-        }
-
     }
 
 }
