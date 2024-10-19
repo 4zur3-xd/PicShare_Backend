@@ -30,6 +30,15 @@ return new class extends Migration
             $table->timestamps();
         });
 
+         // create Indexes
+         Schema::table('users', function (Blueprint $table) {
+            $table->index('name');         
+            $table->index('user_code');     
+            $table->index('email');       
+            $table->index('status');       
+        });
+
+
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
