@@ -2,15 +2,32 @@
 
 namespace App\Http\Controllers\AdminWeb;
 
+use App\Enum\FriendType;
+use App\Enum\NotificationPayloadType;
+use App\Enum\NotificationType;
+use App\Helper\LinkToHelper;
+use App\Helper\NotificationHelper;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\Report;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\FirebasePushController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Requests\StoreNotificationRequest;
 use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
+
+    protected $firebasePushController;
+    protected $notificationController;
+
+    public function __construct(FirebasePushController $firebasePushController, NotificationController $notificationController)
+    {
+        $this->firebasePushController = $firebasePushController;
+        $this->notificationController = $notificationController;
+    }
     public function index()
     {
         try {
@@ -185,8 +202,10 @@ class DashboardController extends Controller
     public function postDelete()
     {
         try {
-            $imgUrl = Post::where('id', $_POST['post_id'])->first()->url_image;
-            Post::where('id', $_POST['post_id'])->delete();
+            $imgUrl = Post::where('id', operator: $_POST['post_id'])->first()->url_image;
+            $postId=$_POST['post_id'];
+            $post=Post::findOrFail($postId);
+            Post::where('id', $postId)->delete();
 
             $imgUrl = str_replace('/storage/', '', $imgUrl);
             $delete = Storage::disk('public')->delete($imgUrl);
@@ -196,9 +215,64 @@ class DashboardController extends Controller
                 return view('errors.500')->with('error_info', $msg);
             }
 
+            // push notification and store in notification table
+            $message="Your post has been deleted by Admin";
+            $title="Post Deleted";
+            $userId=$post->user_id;
+            $this->sendNotification($userId, $message, $title,$post);
+
             return redirect()->back();
         } catch (\Throwable $th) {
             return view('errors.500')->with('error_info', $th->getMessage());
         }
+    }
+
+
+
+    private function sendNotification($userId, $message, $title,$post)
+    {
+        $currentUser = auth()->user();
+        $friendUser = User::find($userId);
+        if (!$friendUser) {
+            return;
+        }
+
+        $content = $message;
+        $fcmToken = $friendUser->fcm_token;
+        $avatar = $currentUser->url_avatar;
+
+        // Create notification record
+        $linkTo = LinkToHelper::createLinkTo(NotificationPayloadType::DELETION, null,$post->id,postCaption: $post->caption,postImage: $post->url_image,postCreatedTime: $post->created_at,postLikeCount : $post->like_count,postCmtCount:$post->cmt_count );
+        $request = new StoreNotificationRequest([
+            'title' => $title,
+            'user_id' => $friendUser->id,
+            'content' => $content,
+            'link_to' => $linkTo,
+            'notification_type' => NotificationType::SYSTEM,
+        ]);
+        $notification = $this->notificationController->store($request);
+        $notificationId = $notification ? $notification->id : null;
+        if ($fcmToken) {
+            $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar,  $notificationId);
+            $this->firebasePushController->sendNotification(new Request($notificationData));
+        }
+
+    }
+
+    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl, $notificationId)
+    {
+        return NotificationHelper::createNotificationData(
+            fcmToken: $fcmToken,
+            title: $title,
+            body: $body,
+            imageUrl: $imageUrl,
+            postId: null,
+            commentId: null,
+            replyId: null,
+            friendType: null,
+            type: NotificationPayloadType::DELETION,
+            notificationId: $notificationId,
+            conversationId: null,
+        );
     }
 }

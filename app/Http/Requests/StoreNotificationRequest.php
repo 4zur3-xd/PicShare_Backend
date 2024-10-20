@@ -40,6 +40,12 @@ class StoreNotificationRequest extends FormRequest
             'link_to.comment_id' => 'nullable|integer',
             'link_to.reply_id' => 'nullable|integer',
             'link_to.friend_type' => 'nullable', 
+            'link_to.deletion_reason' => 'nullable|string',
+            'link_to.post_image' => 'nullable|string',
+            'link_to.post_caption' => 'nullable|string',
+            'link_to.post_created_time' => 'nullable|string',
+            'link_to.post_like_count' => 'nullable|integer',
+            'link_to.post_cmt_count' => 'nullable|integer',
             'notification_type' => [
                 'required',
                 function ($attribute, $value, $fail) {
