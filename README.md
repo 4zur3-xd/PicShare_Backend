@@ -60,6 +60,10 @@ We would like to extend our thanks to the following sponsors for funding Laravel
 ## Run worker
 - php artisan queue:work
 
+## Caching
+- php artisan event:cache
+- php artisan route:cache
+- php artisan view:cache
 
 
 ## License

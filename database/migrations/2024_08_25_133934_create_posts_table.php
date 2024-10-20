@@ -26,6 +26,14 @@ return new class extends Migration
             $table->double('longitude')->nullable();
             $table->timestamps();
         });
+        
+        Schema::table('posts', function (Blueprint $table) {
+            $table->index('user_id');
+            $table->index('created_at'); 
+            $table->index(['user_id', 'created_at']); 
+            $table->index('caption'); 
+        });
+        
     }
 
     /**

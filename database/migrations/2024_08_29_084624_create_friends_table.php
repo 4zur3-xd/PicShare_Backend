@@ -27,6 +27,12 @@ return new class extends Migration
             // Optional: Ensure that the reverse relationship is also unique (e.g., friend_id and user_id as well)
             $table->unique(['friend_id', 'user_id']);
         });
+
+        Schema::table('friends', function (Blueprint $table) {
+            $table->index('user_id');
+            $table->index('friend_id'); 
+            $table->index('status'); 
+        });
     }
 
     /**
