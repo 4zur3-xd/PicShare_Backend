@@ -8,6 +8,7 @@ enum NotificationPayloadType : string
     case FRIEND_REQUEST = 'friend_request';
     case COMMENT = 'comment';
     case CHAT = 'chat';
+    case DELETION = 'deletion';
 
     public static function getValues()
     {
@@ -15,6 +16,7 @@ enum NotificationPayloadType : string
             self::FRIEND_REQUEST,
             self::COMMENT,
             self::CHAT,
+            self::DELETION,
         ];
     }
 }
