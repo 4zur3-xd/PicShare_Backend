@@ -2,19 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\NotificationPayloadType;
 use App\Events\ChatMessageEvent;
 use App\Events\ConversationCreatedEvent;
+use App\Helper\NotificationHelper;
 use App\Helper\ResponseHelper;
 use App\Http\Requests\CreateMessageRequest;
 use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class MessageController extends Controller
 {
+
+    protected $firebasePushController;
+
+    public function __construct(FirebasePushController $firebasePushController)
+    {
+        $this->firebasePushController = $firebasePushController;
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -31,6 +42,12 @@ class MessageController extends Controller
             $user = Auth::user();
             if ($conversationId) {
                 $conversation = Conversation::findOrFail($conversationId);
+
+                if (is_null($receiverId)) {
+                    $users = $conversation->users()->pluck('id')->toArray();
+                    // Filter out receiverId (who is not currentUserId)
+                    $receiverId = collect($users)->reject(fn($id) => $id === $currentUserId)->first();
+                }
             } else {
                 // Check if there is a conversation between userA and userB
                 $conversation = Conversation::whereHas('users', function ($query) use ($currentUserId) {
@@ -65,10 +82,19 @@ class MessageController extends Controller
 
             $conversation->touch();  // update field 'updated_at' in conversation record
 
-            // Broadcast events for real-time updates via Pusher
+           
+
+
+             // send notification
+             $this->sendNotification($receiverId, $message->text, $user->name);
+
+
+             // Broadcast events for real-time updates via Pusher
             // $message->created_at = $message->created_at->setTimezone(config('app.timezone'));
             // $message->updated_at = $message->updated_at->setTimezone(config('app.timezone'));
             $this->broadcastChatMessage($message);
+
+           
 
             DB::commit();
             return ResponseHelper::success(message: "Send message successfully",
@@ -97,6 +123,49 @@ class MessageController extends Controller
         } catch (\Exception $e) {
             Log::error('Broadcast ConversationCreatedEvent failed: ' . $e->getMessage());
         }
+    }
+
+
+    /**
+     * Send friend request notification
+     */
+    private function sendNotification($friendUserId, $message, $title)
+    {
+        $currentUser = auth()->user();
+        $friendUser = User::find($friendUserId);
+        if (!$friendUser) {
+            return;
+        }
+
+        $content = $currentUser->name . $message;
+        $fcmToken = $friendUser->fcm_token;
+        $avatar = $currentUser->url_avatar;
+
+        if ($fcmToken) {
+            $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar);
+            $this->firebasePushController->sendNotification(new Request($notificationData));
+        }
+
+    }
+
+    /**
+     * Prepare notification data for Firebase
+     */
+    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl)
+    {
+        return NotificationHelper::createNotificationData(
+            fcmToken: $fcmToken,
+            title: $title,
+            body: $body,
+            imageUrl: $imageUrl,
+            postId: null,
+            commentId: null,
+            replyId: null,
+            type: NotificationPayloadType::CHAT,
+            notificationId: null,
+            friendType: null,
+            conversationId: null,
+        );
     }
 
 }
