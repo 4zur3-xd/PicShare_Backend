@@ -188,6 +188,9 @@ class CommentController extends Controller
             type: NotificationPayloadType::COMMENT,
             notificationId: $notificationId,
             conversationId: null,
+            userId: auth()->user()->id,
+            userName: auth()->user()->name,
+            userAvatar: auth()->user()->url_avatar,
         );
     }
 

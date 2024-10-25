@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Enum\NotificationPayloadType;
+use App\Http\Resources\UserSummaryResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging;
@@ -49,10 +51,14 @@ class FirebasePushController extends Controller
             $title = $data['title'];
             $body = $data['body'];
             $imageUrl = $data['image_url'];
+            $sender = Auth::user();
+            $senderResource = new UserSummaryResource($sender);
+
+            $senderData = json_encode($senderResource->toArray(request()));
             $messaging = $messaging = $this->initializeMessaging();
             $message = CloudMessage::withTarget('token', $token)
                 ->withNotification(Notification::create($title, $body, $imageUrl));
-            $message = $this->configureMessage($message, $data);
+            $message = $this->configureMessage($message, $data, $senderData);
             $result = $messaging->send($message);
 
         } catch (\Kreait\Firebase\Exception\MessagingException $e) {
@@ -68,14 +74,17 @@ class FirebasePushController extends Controller
             $title = $data['title'];
             $body = $data['body'];
             $imageUrl = $data['image_url'];
+            $sender = Auth::user();
+            $senderResource = new UserSummaryResource($sender);
+
+            $senderData = json_encode($senderResource->toArray(request()));
             foreach ($tokens as $token) {
                 $messaging = $messaging = $this->initializeMessaging();
                 $message = CloudMessage::withTarget('token', $token)
                     ->withNotification(Notification::create($title, $body, $imageUrl));
-                $message = $this->configureMessage($message, $data);
+                $message = $this->configureMessage($message, $data, $senderData);
                 $result = $messaging->send($message);
             }
-      
 
         } catch (\Kreait\Firebase\Exception\MessagingException $e) {
             Log::error("Failed to send notification: " . $e->getMessage());
@@ -95,11 +104,11 @@ class FirebasePushController extends Controller
 
         return $messaging;
     }
-    private function configureMessage(CloudMessage $message, array $data): CloudMessage
+    private function configureMessage(CloudMessage $message, array $data, $senderData): CloudMessage
     {
         return $message
             ->withData([
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK', 
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                 'status' => 'done',
                 'type' => $data['type'] ?? NotificationPayloadType::FRIEND_REQUEST,
                 'post_id' => $data['post_id'] ?? null,
@@ -108,7 +117,8 @@ class FirebasePushController extends Controller
                 'friend_type' => $data['friend_type'] ?? null,
                 'notification_id' => $data['notification_id'] ?? null,
                 'conversation_id' => $data['conversation_id'] ?? null,
-        ], )
+                'sender' => $senderData,
+            ], )
             ->withAndroidConfig(AndroidConfig::fromArray([
                 'notification' => [
                     'color' => '#0A0A0A',
