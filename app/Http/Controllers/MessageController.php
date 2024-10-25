@@ -86,7 +86,7 @@ class MessageController extends Controller
 
 
              // send notification
-             $this->sendNotification($receiverId, $message->text, $user->name);
+             $this->sendNotification($receiverId, $message->text, $user->name, $conversation->id);
 
 
              // Broadcast events for real-time updates via Pusher
@@ -129,7 +129,7 @@ class MessageController extends Controller
     /**
      * Send friend request notification
      */
-    private function sendNotification($friendUserId, $message, $title)
+    private function sendNotification($friendUserId, $message, $title,$conversationId)
     {
         $currentUser = auth()->user();
         $friendUser = User::find($friendUserId);
@@ -142,7 +142,7 @@ class MessageController extends Controller
         $avatar = $currentUser->url_avatar;
 
         if ($fcmToken) {
-            $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar);
+            $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar,$conversationId);
             $this->firebasePushController->sendNotification(new Request($notificationData));
         }
 
@@ -151,8 +151,9 @@ class MessageController extends Controller
     /**
      * Prepare notification data for Firebase
      */
-    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl)
+    private function prepareNotificationData($fcmToken, $title, $body, $imageUrl,$conversationId)
     {
+
         return NotificationHelper::createNotificationData(
             fcmToken: $fcmToken,
             title: $title,
@@ -164,7 +165,10 @@ class MessageController extends Controller
             type: NotificationPayloadType::CHAT,
             notificationId: null,
             friendType: null,
-            conversationId: null,
+            conversationId: $conversationId,
+            userId: auth()->user()->id,
+            userName: auth()->user()->name,
+            userAvatar: auth()->user()->url_avatar,
         );
     }
 

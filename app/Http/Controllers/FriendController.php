@@ -266,6 +266,9 @@ class FriendController extends Controller
             type: NotificationPayloadType::FRIEND_REQUEST,
             notificationId: $notificationId,
             conversationId: null,
+            userId: auth()->user()->id,
+            userName: auth()->user()->name,
+            userAvatar: auth()->user()->url_avatar,
         );
     }
 

@@ -26,6 +26,9 @@ class NotificationHelper
         ?int $conversationId = null,
         ?FriendType $friendType = null,
         NotificationPayloadType $type,
+        ?int $userId = null,
+        ?string $userName = null,
+        ?string $userAvatar = null,
     ): array {
         return [
             'fcm_token' => $fcmToken,
@@ -38,7 +41,12 @@ class NotificationHelper
             'type' => $type->value,
             'friend_type' =>  $friendType?->value ?? null,
             'notification_id' => $notificationId,
-            'conversation_id' => $conversationId
+            'conversation_id' => $conversationId,
+            'sender' => [
+                'id' => $userId,
+                'name' => $userName,
+                'avatar' => $userAvatar,
+            ]
         ];
     }
 
