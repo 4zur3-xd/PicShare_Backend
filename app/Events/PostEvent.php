@@ -39,7 +39,7 @@ class PostEvent  implements ShouldBroadcast, ShouldDispatchAfterCommit
     {
         // Broadcast to channels for each user in the share list
         return array_map(function($userId) {
-            return new PrivateChannel('post.shared.' . $userId);
+            return new Channel('post.shared.' . $userId);
         }, $this->sharedWith);
     }
 
