@@ -86,7 +86,7 @@ class PostController extends Controller
             DB::commit();
 
             // send event
-           $this->sentPostCreationEvent($dataCreate['type'], $post);
+           $this->sentPostCreationEvent($dataCreate['type'], $post,$sharedWith);
             return ResponseHelper::success(message: "Create post successfully", data: $post);
         } catch (\Throwable $th) {
             DB::rollback();
@@ -435,7 +435,7 @@ class PostController extends Controller
     }
 
     // helper methods
-    public function sentPostCreationEvent($type, $post){
+    public function sentPostCreationEvent($type, $post,$sharedWith){
         $user = auth()->user();
               
         if (empty($sharedWith) && $type == SharedPostType::ALL_FRIENDS) {
