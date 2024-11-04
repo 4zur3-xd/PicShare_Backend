@@ -21,7 +21,8 @@ class ImageHelper
     {
         if ($imageFile) {
             // Save the file to the specified folder and get the relative path
-            $path = $imageFile->store($folder);
+            $fileName = time() . '_' . $imageFile->getClientOriginalName();
+            $path = $imageFile->storeAs($folder, $fileName); 
     
             // Generate the public URL from the stored path
             $publicPath = str_replace('public/', '', $path); // Remove 'public/' from the path
