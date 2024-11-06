@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\Language;
 use App\Helper\ImageHelper;
 use App\Helper\ResponseHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules;
@@ -18,11 +20,11 @@ class ApiUserController extends Controller
 
             $request->user()->delete();
 
-            $msg = "User deleted.";
+            $msg = __('deleteUserSuccessfully');
 
             return ResponseHelper::success(message: $msg);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -37,7 +39,7 @@ class ApiUserController extends Controller
             ]);
     
             if ($validation->fails()) {
-                return ResponseHelper::error(message: 'Validation fails.');
+                return ResponseHelper::error(message: __('failToValidation') .  $validation->errors());
             }
     
             // Handle the image file if it is present
@@ -52,14 +54,22 @@ class ApiUserController extends Controller
             if ($fullUrl) {
                 $dataToUpdate['url_avatar'] = $fullUrl;
             }
+
+            if(isset($dataToUpdate['language'])){
+                $locale = $dataToUpdate['language'];
+                if (!in_array($locale, Language::getValues())) {
+                    $locale = Language::EN;
+                }
+                App::setLocale($locale);
+            }
     
             // Update user attributes
             $user->fill($dataToUpdate);
             $user->save();
             // user->update = user->fill + user->save
-            return ResponseHelper::success(message: 'User updated.', data: $user);
+            return ResponseHelper::success(message: __('updateSuccessfully'), data: $user);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:__('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
     public function changePassword(Request $request)
@@ -71,17 +81,17 @@ class ApiUserController extends Controller
             ]);
 
             if ($validation->fails()) {
-                return ResponseHelper::error(message: $validation->errors());
+                return ResponseHelper::error(message: __('failToValidation') .  $validation->errors());
             }
 
             $request->user()->fill($request->all());
             $request->user()->save();
 
-            $msg = 'Password updated.';
+            $msg = __('updatePassSuccessfully');
 
             return ResponseHelper::success(message: $msg, data: $request->user());
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 }

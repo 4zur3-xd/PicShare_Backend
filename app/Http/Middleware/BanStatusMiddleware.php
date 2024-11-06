@@ -19,7 +19,7 @@ class BanStatusMiddleware
         $userStatus = $request->user()->status;
 
         if($userStatus == 0){
-            $msg = 'This account has been banned! Mail to '.env('ADMIN_EMAIL', 'admin@picshare.com').' for information or to protest the ban.';
+            $msg =  __('thisAccHasBeenBanned') .  __('mailTo') . env('ADMIN_EMAIL', 'admin@picshare.com').   __('protestBan') ; 
             return ResponseHelper::error(message: $msg, statusCode: 403);
         }
 

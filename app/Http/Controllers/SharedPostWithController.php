@@ -37,7 +37,7 @@ class SharedPostWithController extends Controller
 
             return ResponseHelper::success(message: "Shared post successfully");
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 

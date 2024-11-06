@@ -85,7 +85,7 @@ class ConversationController extends Controller
                 'conversation_id' => $conversation->id,
             ]);
         }
-        return ResponseHelper::success(message: "Create conversation successfully", data: $conversation, status: 201);
+        return ResponseHelper::success(message: __('createConversationSuccessfully'), data: $conversation, status: 201);
     }
 
     public function getMessages($conversationId)
@@ -112,7 +112,7 @@ class ConversationController extends Controller
 
             return ResponseHelper::success(message: "All messages marked as read successfully.");
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg')  . $th->getMessage());
         }
 
     }

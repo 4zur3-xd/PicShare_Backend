@@ -67,7 +67,7 @@ class MessageController extends Controller
 
             //Check if the conversation is not found
             if (!$conversation) {
-                return ResponseHelper::error(message: "Conversation not found", status: 404);
+                return ResponseHelper::error(message: __('conversationNotFound'), status: 404);
             }
 
             $message = Message::create([
@@ -97,13 +97,13 @@ class MessageController extends Controller
            
 
             DB::commit();
-            return ResponseHelper::success(message: "Send message successfully",
+            return ResponseHelper::success(message: __('sendMessageSuccessfully'),
                 data: new MessageResource($message),
                 status: 201
             );
         } catch (\Throwable $th) {
             DB::rollBack();
-            return ResponseHelper::error(message: "Send message failed", );
+            return ResponseHelper::error(message: __('sendMessageFail'), );
         }
 
     }

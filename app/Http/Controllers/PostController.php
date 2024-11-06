@@ -65,7 +65,7 @@ class PostController extends Controller
             $post = Post::create($dataCreate);
 
             if (!$post || !$post->wasRecentlyCreated) {
-                return ResponseHelper::error(message: "Failed to create post. Please try again.");
+                return ResponseHelper::error(message: __('failToCreatePostAndTryAgain'));
             }
 
             // Find UserLog or create new if not exists
@@ -87,10 +87,10 @@ class PostController extends Controller
 
             // send event
            $this->sentPostCreationEvent($dataCreate['type'], $post,$sharedWith);
-            return ResponseHelper::success(message: "Create post successfully", data: $post);
+            return ResponseHelper::success(message: __('createPostSuccessfully'), data: $post);
         } catch (\Throwable $th) {
             DB::rollback();
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -150,10 +150,10 @@ class PostController extends Controller
             $userLog->decrement('total_like', $likeCount);
             $userLog->increment('total_deleted');
             DB::commit();
-            return ResponseHelper::success(message: "Delete post successfully");
+            return ResponseHelper::success(message: __('deletePostSuccessfully'));
         } catch (\Throwable $th) {
             DB::rollback();
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -172,9 +172,9 @@ class PostController extends Controller
 
             $dataCollection = new PostCollection($posts);
 
-            return ResponseHelper::success(data: $dataCollection->toArray($request), message: "Get post histories successfully");
+            return ResponseHelper::success(data: $dataCollection->toArray($request), message: __('getPostHistorySuccessfully'));
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -184,16 +184,16 @@ class PostController extends Controller
             $post = Post::with(['user', 'comments.user', 'comments.replies.user'])->find($id);
 
             if (!$post) {
-                return ResponseHelper::error(message: 'Post not found.', statusCode: 404);
+                return ResponseHelper::error(message: __('postNotFound'), statusCode: 404);
             }
 
             return ResponseHelper::success(
-                message: 'Post details retrieved successfully.',
+                message: __('postDetailRetrievedSuccessfully'),
                 data: new PostDetailResource($post)
             );
 
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: 'An error occurred: ' . $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -232,7 +232,7 @@ class PostController extends Controller
                 'user_views' => $data,
             ]);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -271,7 +271,7 @@ class PostController extends Controller
                 'user_likes' => $data,
             ]);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -281,12 +281,12 @@ class PostController extends Controller
             $data = $request->all();
 
             if (!isset($data['reason'])) {
-                $msg = 'No reason delivered.';
+                $msg = __('noReasonDelivered');
                 return ResponseHelper::error(message: $msg);
             }
 
             if ($data['reason'] == null) {
-                $msg = 'No reason delivered.';
+                $msg = __('noReasonDelivered');
                 return ResponseHelper::error(message: $msg);
             }
 
@@ -296,7 +296,7 @@ class PostController extends Controller
             $checkDup = Report::where('post_id', $post->id)->where('user_reporting', $user->id);
 
             if ($checkDup->count() > 0) {
-                $msg = 'You already reported this post.';
+                $msg = __('alreadyReported');
                 return ResponseHelper::error(message: $msg);
             }
 
@@ -309,11 +309,11 @@ class PostController extends Controller
 
             $report = $report->fresh();
 
-            $msg = 'Reported successfully!';
+            $msg = __('reportSuccessfully');
 
             return ResponseHelper::success(message: $msg, data: $report);
         } catch (\Throwable $th) {
-            ResponseHelper::error(message: $th->getMessage());
+            ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -406,7 +406,7 @@ class PostController extends Controller
             ];
             return ResponseHelper::success(data: $response);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
 
     }
@@ -429,7 +429,7 @@ class PostController extends Controller
             $response = PostResource::collection($posts);
             return ResponseHelper::success(data: $response);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
 
     }

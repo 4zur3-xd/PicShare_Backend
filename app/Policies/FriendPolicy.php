@@ -10,6 +10,6 @@ class FriendPolicy
 {
     public function modify(User $user, Friend $friend)
     {
-        return $user->id === $friend->user_id || $user->id === $friend->friend_id ? Response::allow() : Response::deny('You are not allowed to modify this friend.');
+        return $user->id === $friend->user_id || $user->id === $friend->friend_id ? Response::allow() : Response::deny(__('notAllowToModifyThisFriend'));
     }
 }
