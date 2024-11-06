@@ -397,7 +397,7 @@ class FriendController extends Controller
             $suggestedFriends = $this->getSuggestedFriends($user);
             return ResponseHelper::success(data: $suggestedFriends);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 }
