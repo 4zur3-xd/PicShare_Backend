@@ -55,20 +55,20 @@ class FriendController extends Controller
 
             if (!$friend || $friend->wasRecentlyCreated === false) {
                 DB::rollBack();
-                return ResponseHelper::error(message: "Failed to add friend. Please try again.");
+                return ResponseHelper::error(message: __('failToAddFriendTryAgain'));
             }
 
-            $this->sendFriendRequestNotification($friend->friend_id, ' sent you a friend request.', 'New Friend Request', FriendType::REQUESTED);
+            $this->sendFriendRequestNotification($friend->friend_id, 'sentYouFriendRequest', 'newFriendRequest', FriendType::REQUESTED);
 
             $friend = Friend::with(['user', 'friend'])->find($friend->id);
             DB::commit();
             return ResponseHelper::success(
-                message: "Add friend successfully",
+                message: __('addFriendSuccessfully'),
                 data: new FriendResource($friend)
             );
         } catch (\Throwable $th) {
             DB::rollBack();
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:__('somethingWentWrongWithMsg') . $th->getMessage());
         }
 
     }
@@ -93,12 +93,12 @@ class FriendController extends Controller
             $friend = Friend::findOrFail($id);
             Gate::authorize('modify', $friend);
             $friend->update($request->all());
-            $this->sendFriendRequestNotification($friend->user_id, ' accepted your friend request!', 'Friend Request', FriendType::FRIEND);
+            $this->sendFriendRequestNotification($friend->user_id,'acceptYourFriendRequest', 'friendRequest', FriendType::FRIEND);
             DB::commit();
-            return ResponseHelper::success(message: "Update friend successfully");
+            return ResponseHelper::success(message: __('updateFriendSuccessfully'));
         } catch (\Throwable $th) {
             DB::rollBack();
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -111,9 +111,9 @@ class FriendController extends Controller
             $friend = Friend::findOrFail($id);
             Gate::authorize('modify', $friend);
             $friend->delete();
-            return ResponseHelper::success(message: "Delete friend successfully");
+            return ResponseHelper::success(message: __('deleteFriendSuccessfully'));
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -136,7 +136,7 @@ class FriendController extends Controller
             ];
             return ResponseHelper::success(data: $responseData);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
     public function getRequestedFriends()
@@ -154,7 +154,7 @@ class FriendController extends Controller
             ];
             return ResponseHelper::success(data: $responseData);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
     public function getSentFriends()
@@ -172,7 +172,7 @@ class FriendController extends Controller
             ];
             return ResponseHelper::success(data: $responseData);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -212,14 +212,14 @@ class FriendController extends Controller
             $reponse = UserSummaryResource::collection($mutualFriends);
             return ResponseHelper::success(data: $reponse);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
     /**
      * Send friend request notification
      */
-    private function sendFriendRequestNotification($friendUserId, $message, $title, FriendType $friendType)
+    private function sendFriendRequestNotification($friendUserId, $messageKey, $titleKey, FriendType $friendType)
     {
         $currentUser = auth()->user();
         $friendUser = User::find($friendUserId);
@@ -227,23 +227,32 @@ class FriendController extends Controller
             return;
         }
 
-        $content = $currentUser->name . $message;
         $fcmToken = $friendUser->fcm_token;
         $avatar = $currentUser->url_avatar;
+
+        $contentParams = [
+            'name' => $currentUser->name, 
+        ];
+        $title=__($titleKey);
+        $contentDB = json_encode([
+            'key' => $messageKey,
+            'params' => $contentParams
+        ]);
 
         // Create notification record
         $linkTo = LinkToHelper::createLinkTo(NotificationPayloadType::FRIEND_REQUEST, $friendType);
         $request = new StoreNotificationRequest([
-            'title' => $title,
+            'title' => $titleKey,
             'user_id' => $friendUser->id,
-            'content' => $content,
+            'content' => $contentDB,
             'link_to' => $linkTo,
             'notification_type' => NotificationType::USER,
         ]);
         $notification = $this->notificationController->store($request);
         $notificationId = $notification ? $notification->id : null;
         if ($fcmToken) {
-            $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar, $friendType, $notificationId);
+            $translatedContent = __($contentDB, $contentParams);
+            $notificationData = $this->prepareNotificationData($fcmToken, $title, $translatedContent, $avatar, $friendType, $notificationId);
             $this->firebasePushController->sendNotification(new Request($notificationData));
         }
 

@@ -10,6 +10,6 @@ class PostPolicy
 {
     public function modifyPost(User $user, Post $post)
     {
-        return $user->id === $post->user_id ? Response::allow() : Response::deny('You are not allowed to modify this post.');
+        return $user->id === $post->user_id ? Response::allow() : Response::deny(__('notAllowedToModifyPost'));
     }
 }

@@ -15,7 +15,7 @@ class ApiUserSearchController extends Controller
             $currUser = $request->user();
 
             if($name == null){
-                $msg = 'Please enter a name.';
+                $msg = __('pleaseEnterName');
                 return ResponseHelper::error(message: $msg);
             }
     
@@ -23,7 +23,7 @@ class ApiUserSearchController extends Controller
             $result = $result->get();
 
             if($result->isEmpty()){
-                $msg = 'No users found.';
+                $msg = __('noUserFound');
                 return ResponseHelper::success(message: $msg);
             }
 
@@ -35,7 +35,7 @@ class ApiUserSearchController extends Controller
              ]);
     
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -45,7 +45,7 @@ class ApiUserSearchController extends Controller
             $currUser = $request->user();
 
             if($code == null){
-                $msg = 'Please enter a user code.';
+                $msg = __('pleaseEnterUserCode');
                 return ResponseHelper::error(message: $msg);
             }
     
@@ -53,7 +53,7 @@ class ApiUserSearchController extends Controller
             $result = $result->get();
     
             if($result->isEmpty()){
-                $msg = 'No users found.';
+                $msg = __('noUserFound');
                 return ResponseHelper::success(message: $msg);
             }
 
@@ -65,7 +65,7 @@ class ApiUserSearchController extends Controller
             ]);
     
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 }

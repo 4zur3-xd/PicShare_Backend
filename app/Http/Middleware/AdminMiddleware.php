@@ -19,7 +19,7 @@ class AdminMiddleware
         $userRole = $request->user()->role;
 
         if($userRole == 'user'){
-            $msg = 'Admin account required.';
+            $msg = __('adminAccountRequired');
             return ResponseHelper::error(message: $msg);
         }
 

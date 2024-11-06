@@ -24,15 +24,23 @@ class NotificationController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->paginate(30);
 
+            foreach ($notifications as $notification) {
+                $notification->title = __($notification->title);
+                $content = json_decode($notification->content, true); 
+                if (isset($content['key'])) {
+                    $notification->content = __($content['key'], $content['params']);
+                }
+            }
+
             $dataCollection = new NotificationCollection($notifications);
 
             return ResponseHelper::success(
                 data: $dataCollection->toArray($request),
-                message: "Get notifications successfully"
+                message: __('retrieveNotificationsSuccessfully')
             );
         } catch (\Throwable $th) {
-            Log::error("Failed to retrieve notifications: " . $th->getMessage());
-            return ResponseHelper::error(message: "Failed to retrieve notifications.");
+            Log::error(__('failToRetrieveNotifications') . $th->getMessage());
+            return ResponseHelper::error(message: __('failToRetrieveNotifications') . $th->getMessage());
         }
     }
 
@@ -53,7 +61,7 @@ class NotificationController extends Controller
             $notification = Notification::create($validated);
             return $notification;
         } catch (\Throwable $th) {
-            Log::error("Failed to create notification: " . $th->getMessage());
+            Log::error(__('failToCreateNotification') . $th->getMessage());
             return null;
         }
     }
@@ -77,16 +85,16 @@ class NotificationController extends Controller
                 ->where('user_id', $user->id)
                 ->first();
             if (!$notification) {
-                return ResponseHelper::error(message: "Notification not found");
+                return ResponseHelper::error(message: __('notificationNotFound'));
             }
             $notification->is_read = true;
             $notification->save();
             $notification;
-            return ResponseHelper::success(message: "Notification updated successfully");
+            return ResponseHelper::success(message: __('updateNotificationSuccessfully'));
 
         } catch (\Throwable $th) {
-            Log::error("Failed to update notifications: " . $th->getMessage());
-            return ResponseHelper::error(message: "Failed to update notifications.");
+            Log::error(__('failToUpdateNotifications') . $th->getMessage());
+            return ResponseHelper::error(message: __('failToUpdateNotifications') . $th->getMessage());
         }
     }
 
@@ -120,11 +128,11 @@ class NotificationController extends Controller
                 ->where('is_seen', false)
                 ->update(['is_seen' => true]);
 
-            return ResponseHelper::success(message: "All unseen notifications marked as seen successfully");
+            return ResponseHelper::success(message: __('markAsReadSuccessfully'));
 
         } catch (\Throwable $th) {
-            Log::error("Failed to mark all notifications as seen: " . $th->getMessage());
-            return ResponseHelper::error(message: "Failed to mark all notifications as seen.");
+            Log::error(__('failToMarkAsRead') . $th->getMessage());
+            return ResponseHelper::error(message: __('failToMarkAsRead') . $th->getMessage());
         }
     }
 }

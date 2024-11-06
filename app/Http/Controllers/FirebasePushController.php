@@ -37,7 +37,7 @@ class FirebasePushController extends Controller
             ]);
         } catch (\Throwable $e) {
             return response()->json([
-                "message" => 'Failed to set fcm: ' . $e->getMessage(),
+                "message" => __('somethingWentWrongWithMsg')  . $e->getMessage(),
             ], 500);
         }
 
@@ -62,7 +62,7 @@ class FirebasePushController extends Controller
             $result = $messaging->send($message);
 
         } catch (\Kreait\Firebase\Exception\MessagingException $e) {
-            Log::error("Failed to send notification: " . $e->getMessage());
+            Log::error(__('failToSendFCM') . $e->getMessage());
         }
     }
 
@@ -87,7 +87,7 @@ class FirebasePushController extends Controller
             }
 
         } catch (\Kreait\Firebase\Exception\MessagingException $e) {
-            Log::error("Failed to send notification: " . $e->getMessage());
+            Log::error(__('failToSendFCM') . $e->getMessage());
         }
     }
 

@@ -61,7 +61,7 @@ class ApiGoogleAuthController extends Controller
                 return ResponseHelper::success(data: $userArray);
             }
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 }

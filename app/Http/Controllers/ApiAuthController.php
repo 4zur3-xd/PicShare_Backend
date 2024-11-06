@@ -24,7 +24,7 @@ class ApiAuthController extends Controller
             ]);
 
             if($validateUser->fails()){
-                return ResponseHelper::error(message: $validateUser->errors());
+                return ResponseHelper::error(message: __('failToValidation') .  $validateUser->errors());
             }else{
                 $user = User::create([
                     'name' => $request->name,
@@ -51,7 +51,7 @@ class ApiAuthController extends Controller
             }
         } catch (\Throwable $th) {
             DB::rollback();
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') .  $th->getMessage());
         }
     }
 
@@ -64,19 +64,19 @@ class ApiAuthController extends Controller
             ]);
 
             if($validateUser->fails()){
-                return ResponseHelper::error(message: $validateUser->errors());
+                return ResponseHelper::error(message: __('somethingWentWrongWithMsg') .  $validateUser->errors());
             }else{
                 $user = User::where('email', $request->email)->first();
 
                 if(!$user || !Hash::check($request->password, $user->password)){
-                    return ResponseHelper::error(message: 'Wrong password.');
+                    return ResponseHelper::error(message: __('wrongPassword'));
                 }else{
                     $authToken = $user->createToken('auth_token')->plainTextToken;
                     $userArray = $user->toArray();
                     $userArray['access_token'] = $authToken;
                     if ($user->status == 0) {
                         Auth::logout();
-                        $msg = 'This account has been banned! Mail to '.env('ADMIN_EMAIL', 'admin@picshare.com').' for information or to protest the ban.';
+                        $msg =  __('thisAccHasBeenBanned') .  __('mailTo') . env('ADMIN_EMAIL', 'admin@picshare.com').   __('protestBan') ; 
                         return ResponseHelper::error(message: $msg, statusCode: 403);
                     }
                     return [
@@ -86,7 +86,7 @@ class ApiAuthController extends Controller
                 }
             }
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') .  $th->getMessage());
         }
     }
 
@@ -97,10 +97,10 @@ class ApiAuthController extends Controller
 
             return [
                 'status' => true,
-                'message' => "Logout successfully"
+                'message' =>  __('logoutSuccessfully')
             ];
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 }

@@ -35,7 +35,7 @@ class CommentController extends Controller
             $post = Post::find($postId);
 
             if (!$post) {
-                return ResponseHelper::error(message: 'Post not found.', statusCode: 404);
+                return ResponseHelper::error(message: __('postNotFound'), statusCode: 404);
             }
 
             // Get all comments of that post, including user and their replies along with the user of the reply
@@ -47,7 +47,7 @@ class CommentController extends Controller
             ];
             return ResponseHelper::success(message: 'Comments retrieved successfully.', data: $arrayData);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: 'An error occurred: ' . $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg')  . $th->getMessage());
         }
     }
 
@@ -69,10 +69,10 @@ class CommentController extends Controller
             $commentResponse = new CommentResource($comment);
 
             $this->sendCommentNotification($postOwner->id, ' comment in your post', 'New comment', $id, $comment->id, null);
-            return ResponseHelper::success(message: "Add comment successfully", data: $commentResponse, statusCode: 201);
+            return ResponseHelper::success(message: __('addCommentSuccessfully'), data: $commentResponse, statusCode: 201);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -84,7 +84,7 @@ class CommentController extends Controller
                 'content' => ['required', 'string', 'max:255'],
             ]);
             if ($validation->fails()) {
-                return ResponseHelper::error(message: 'Validation fails.');
+                return ResponseHelper::error(message: __('failToValidation') . $validation->errors());
             }
             $currentUserId = auth()->user()->id;
 
@@ -98,7 +98,7 @@ class CommentController extends Controller
             $post = Post::findOrFail($id);
             $post->increment('cmt_count');
             if (!$comment) {
-                return ResponseHelper::error(message: 'Comment not found.');
+                return ResponseHelper::error(message: __('commentNotFound'));
             }
 
             // Get the user_id of the original comment creator
@@ -127,11 +127,11 @@ class CommentController extends Controller
             $replyResource = new ReplyResource($reply);
 
             // Return a success response with comment and reply data
-            return ResponseHelper::success(message: 'Reply created successfully.', data:
+            return ResponseHelper::success(message: __('replyCreatedSuccessfully'), data:
                 $replyResource,
             );
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: 'An error occurred: ' . $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 

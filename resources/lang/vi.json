@@ -1,0 +1,67 @@
+{
+    "Welcome to my website!": "Chào mừng bạn đến với website!",
+    "wrongPassword":"Sai mật khẩu",
+    "somethingWentWrong!": "Đã có lỗi xảy ra",
+    "somethingWentWrongWithMsg": "Đã có lỗi xảy ra: ",
+    "logoutSuccessfully":"Đăng xất thành công",
+    "thisAccHasBeenBanned":"Tài khoản đã bi cấm! ",
+    "mailTo":"Gửi đến ",
+    "protestBan":" để biết thông tin hoặc phản đối lệnh cấm.",
+    "updateSuccessfully": "Cập nhật thành công",
+    "failToValidation":"Xác thực không thành công",
+    "updatePassSuccessfully":"Cập nhật mật khẩu thành công",
+    "deleteUserSuccessfully":"Xóa người dùng thành công",
+    "pleaseEnterName":"Vui lòng nhập tên",
+    "pleaseEnterUserCode":"Vui lòng nhập mã người dùng",
+    "noUserFound":"Không tìm thấy người dùng nào",
+
+    "postNotFound":"Không tìm thấy bài viết nào",
+    "addCommentSuccessfully":"Thêm bình luận thành công",
+    "commentNotFound":"Không tìm thấy bình luận",
+    "replyCreatedSuccessfully":"Trả lời đã được tạo thành công",
+
+    "createConversationSuccessfully":"Tạo cuộc trò chuyện thành công",
+    "failToSendFCM":"Không gửi được thông báo: ",
+    "sendMessageFail":"Gửi tin nhắn không thành công",
+    "sendMessageSuccessfully":"Gửi tin nhắn thành công",
+    "conversationNotFound":"Không tìm thấy cuộc trò chuyện",
+
+    "failToRetrieveNotifications":"Không truy xuất được thông báo: ",
+    "retrieveNotificationsSuccessfully":"Truy xuất thông báo thành công",
+    "failToCreateNotification":"Không tạo được thông báo: ",
+    "notificationNotFound":"Không tìm thấy thông báo",
+    "updateNotificationSuccessfully":"Thông báo đã cập nhật thành công",
+    "failToUpdateNotifications":"Không cập nhật được thông báo: ",
+    "markAsReadSuccessfully":"Tất cả thông báo chưa xem đã được đánh dấu là đã xem thành công",
+    "failToMarkAsRead":"Không đánh dấu được tất cả thông báo là đã xem: ",
+
+    "failToCreatePostAndTryAgain":"Không tạo được bài đăng. Vui lòng thử lại.",
+    "createPostSuccessfully":"Tạo bài đăng thành công",
+    "deletePostSuccessfully":"Xóa bài đăng thành công",
+    "getPostHistorySuccessfully":"Lấy lịch sử bài đăng thành công",
+    "postDetailRetrievedSuccessfully":"Chi tiết bài đăng đã được lấy thành công",
+    "notAllowedToModifyPost":"Bạn không được phép sửa đổi bài đăng này.",
+
+    "noReasonDelivered":"Không gửi lý do",
+    "alreadyReported":"Bạn đã báo cáo bài đăng này rồi.",
+    "reportSuccessfully":"Báo cáo thành công",
+
+    "userLogNotFound":"Không tìm thấy nhật ký người dùng",
+    "userLogRetrievedSuccessfully":"Nhật ký người dùng đã được lấy thành công",
+    "userNotAuthenticatedOrNoUIDProvided":"Người dùng chưa được xác thực hoặc không cung cấp ID người dùng",
+    "userLogCreatedSuccessfully":"Nhật ký người dùng đã được tạo thành công",
+
+    "notAllowToModifyThisFriend":"Bạn không được phép sửa đổi người bạn này",
+
+    "adminAccountRequired":"Cần có tài khoản quản trị viên",
+
+    "friendRequest":"Yêu cầu kết bạn",
+    "newFriendRequest":"Yêu cầu kết bạn mới",
+    "addFriendSuccessfully":"Thêm bạn bè thành công",
+    "updateFriendSuccessfully":"Cập nhật bạn bè thành công",
+    "deleteFriendSuccessfully":"Xóa bạn bè thành công",
+    "failToAddFriendTryAgain":"Không thêm được bạn bè. Vui lòng thử lại",
+    "acceptYourFriendRequest":":name đã chấp nhận yêu cầu kết bạn của bạn!",
+    "sentYouFriendRequest":":name đã gửi cho bạn một yêu cầu kết bạn."
+
+}

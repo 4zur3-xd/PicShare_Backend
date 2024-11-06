@@ -1,0 +1,69 @@
+{
+    "Welcome to my website!": "Welcome to my website!",
+    "wrongPassword":"Wrong password",
+    "somethingWentWrong!": "Something went wrong",
+    "somethingWentWrongWithMsg": "Something went wrong: ",
+    "logoutSuccessfully":"Logout successfully",
+    "thisAccHasBeenBanned":"This account has been banned! ",
+    "mailTo":"Mail to ",
+    "protestBan":" for information or to protest the ban.",
+    "updateSuccessfully": "Update successfully",
+    "failToValidation":"Fail to validation",
+    "updatePassSuccessfully":"Update password successfully",
+    "deleteUserSuccessfully":"Delete user successfully",
+    "pleaseEnterName":"Please enter a name",
+    "pleaseEnterUserCode":"Please enter a user code",
+    "noUserFound":"No users found",
+
+    "postNotFound":"Post not found",
+    "addCommentSuccessfully":"Add comment successfully",
+    "commentNotFound":"Comment not found",
+    "replyCreatedSuccessfully":"Reply created successfully",
+
+    "createConversationSuccessfully":"Create conversation successfully",
+    "failToSendFCM":"Failed to send notification: ",
+    "sendMessageFail":"Send message fail",
+    "sendMessageSuccessfully":"Send message successfully",
+    "conversationNotFound":"Conversation not found",
+
+    "failToRetrieveNotifications":"Failed to retrieve notifications: ",
+    "retrieveNotificationsSuccessfully":"Retrieve notifications successfully",
+    "failToCreateNotification":"Failed to create notification: ",
+    "notificationNotFound":"Notification not found",
+    "updateNotificationSuccessfully":"Notification updated successfully",
+    "failToUpdateNotifications":"Failed to update notifications: ",
+    "markAsReadSuccessfully":"All unseen notifications marked as seen successfully",
+    "failToMarkAsRead":"Failed to mark all notifications as seen: ",
+
+    "failToCreatePostAndTryAgain":"Failed to create post. Please try again.",
+    "createPostSuccessfully":"Create post successfully",
+    "deletePostSuccessfully":"Delete post successfully",
+    "getPostHistorySuccessfully":"Get post history successfully",
+    "postDetailRetrievedSuccessfully":"Post detail retrieved successfully",
+    "notAllowedToModifyPost":"You are not allowed to modify this post.",
+
+    "noReasonDelivered":"No reason delivered",
+    "alreadyReported":"You already reported this post.",
+    "reportSuccessfully":"Report successfully",
+
+    "userLogNotFound":"User log not found",
+    "userLogRetrievedSuccessfully":"User log retrieved successfully",
+    "userNotAuthenticatedOrNoUIDProvided":"User not authenticated or no user ID provided",
+    "userLogCreatedSuccessfully":"User log created successfully",
+
+    "notAllowToModifyThisFriend":"You are not allowed to modify this friend",
+
+    "adminAccountRequired":"Admin account required",
+
+    "friendRequest":"Friend request",
+    "newFriendRequest":"New Friend Request",
+    "addFriendSuccessfully":"Add friend successfully",
+    "updateFriendSuccessfully":"Update friend successfully",
+    "deleteFriendSuccessfully":"Delete friend successfully",
+    "failToAddFriendTryAgain":"Failed to add friend. Please try again",
+    "acceptYourFriendRequest":":name accepted your friend request!",
+    "sentYouFriendRequest":":name sent you a friend request."
+
+
+
+}

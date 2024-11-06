@@ -51,7 +51,7 @@ class UserLikeController extends Controller
             return ResponseHelper::success(message: "Liker created and post updated successfully");
         } catch (\Throwable $th) {
             DB::rollback();
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -105,7 +105,7 @@ class UserLikeController extends Controller
             return ResponseHelper::success(message: "Updated successfully");
         } catch (\Throwable $th) {
             DB::rollback();
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 }
