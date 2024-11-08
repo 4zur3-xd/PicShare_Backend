@@ -24,7 +24,7 @@ class GoogleAuthController extends Controller
 
             $usedEmail = User::where('email', $googleUser->getEmail())->where('google_id', null)->first();
             if($usedEmail){
-                $error_info = 'Sorry, this email has been registered to an account (Try login with this email and password, not "Continue with Google"!).';
+                $error_info = __('alreadyRegisteredAccount');
 
                 return view('errors.500')->with('error_info', $error_info);
             }

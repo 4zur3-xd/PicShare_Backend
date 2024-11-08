@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -44,10 +45,13 @@ class ApiAuthController extends Controller
                 $authToken = $user->createToken('auth_token')->plainTextToken;
                 $userArray = $user->toArray();
                 $userArray['access_token'] = $authToken;
-                return [
-                    'status' => true,
-                    'user' => $userArray,
-                ];
+                // return [
+                //     'status' => true,
+                //     'user' => $userArray,
+                // ];
+                $locale= $user->language;
+                App::setLocale($locale);
+                return ResponseHelper::success(data: $userArray,message: __('accRegisteredSuccessfully'));
             }
         } catch (\Throwable $th) {
             DB::rollback();
@@ -79,10 +83,9 @@ class ApiAuthController extends Controller
                         $msg =  __('thisAccHasBeenBanned') .  __('mailTo') . env('ADMIN_EMAIL', 'admin@picshare.com').   __('protestBan') ; 
                         return ResponseHelper::error(message: $msg, statusCode: 403);
                     }
-                    return [
-                        'status' => true,
-                        'user' => $userArray,
-                    ];
+                    $locale= $user->language;
+                    App::setLocale($locale);
+                    return ResponseHelper::success(data: $userArray,message: __('loginSuccessfully'));
                 }
             }
         } catch (\Throwable $th) {
@@ -95,10 +98,11 @@ class ApiAuthController extends Controller
         try {
             auth()->user()->tokens()->delete();
 
-            return [
-                'status' => true,
-                'message' =>  __('logoutSuccessfully')
-            ];
+            // return [
+            //     'status' => true,
+            //     'message' =>  __('logoutSuccessfully')
+            // ];
+            return ResponseHelper::success(message: __('logoutSuccessfully'));
         } catch (\Throwable $th) {
             return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }

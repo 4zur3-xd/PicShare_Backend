@@ -110,7 +110,7 @@ class ConversationController extends Controller
                 $message->update(['is_read' => true]);
             }
 
-            return ResponseHelper::success(message: "All messages marked as read successfully.");
+            return ResponseHelper::success(message: __('allMessageRead'));
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: __('somethingWentWrongWithMsg')  . $th->getMessage());
         }

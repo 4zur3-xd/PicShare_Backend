@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enum\NotificationPayloadType;
+use App\Helper\ResponseHelper;
 use App\Http\Resources\UserSummaryResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,13 +33,16 @@ class FirebasePushController extends Controller
             ]);
 
             //Get the currrently logged in user and set their token
-            return response()->json([
-                'message' => 'Successfully Updated FCM Token',
-            ]);
+            // return response()->json([
+            //     'message' => 'Successfully Updated FCM Token',
+            // ]);
+            return ResponseHelper::success(message: __('updateDeviceTokenSuccessfully'),);
         } catch (\Throwable $e) {
-            return response()->json([
-                "message" => __('somethingWentWrongWithMsg')  . $e->getMessage(),
-            ], 500);
+            // return response()->json([
+            //     "message" => __('somethingWentWrongWithMsg')  . $e->getMessage(),
+            // ], 500);
+
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $e->getMessage());
         }
 
     }

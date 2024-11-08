@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\FirebasePushController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Requests\StoreNotificationRequest;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
@@ -216,8 +217,8 @@ class DashboardController extends Controller
             }
 
             // push notification and store in notification table
-            $message="Your post has been deleted by Admin";
-            $title="Post Deleted";
+            $message='postDeletedByAdmin';
+            $title='postDeleted';
             $userId=$post->user_id;
             $this->sendNotification($userId, $message, $title,$post);
 
@@ -229,7 +230,7 @@ class DashboardController extends Controller
 
 
 
-    private function sendNotification($userId, $message, $title,$post)
+    private function sendNotification($userId, $messageKey, $titleKey,$post)
     {
         $currentUser = auth()->user();
         $friendUser = User::find($userId);
@@ -237,25 +238,40 @@ class DashboardController extends Controller
             return;
         }
 
-        $content = $message;
         $fcmToken = $friendUser->fcm_token;
         $avatar = $currentUser->url_avatar;
+
+
+    
+        $originalLocale = App::getLocale();
+
+        $friendLocale = $friendUser->language ?? 'en'; // Default to 'en' if no locale is set
+        App::setLocale($friendLocale); // Set the app locale to the friend's language temporarily
+    
+        $title=__($titleKey);
+        $contentDB = json_encode([
+            'key' => $messageKey,
+        ]);
 
         // Create notification record
         $linkTo = LinkToHelper::createLinkTo(NotificationPayloadType::DELETION, null,$post->id,postCaption: $post->caption,postImage: $post->url_image,postCreatedTime: $post->created_at,postLikeCount : $post->like_count,postCmtCount:$post->cmt_count );
         $request = new StoreNotificationRequest([
-            'title' => $title,
+            'title' => $titleKey,
             'user_id' => $friendUser->id,
-            'content' => $content,
+            'content' => $contentDB,
             'link_to' => $linkTo,
             'notification_type' => NotificationType::SYSTEM,
         ]);
         $notification = $this->notificationController->store($request);
         $notificationId = $notification ? $notification->id : null;
         if ($fcmToken) {
-            $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar,  $notificationId);
+            $translatedContent = __($messageKey);
+            $notificationData = $this->prepareNotificationData($fcmToken, $title, $translatedContent, $avatar,  $notificationId);
             $this->firebasePushController->sendNotification(new Request($notificationData));
         }
+
+         // Restore the original locale 
+         App::setLocale(locale: $originalLocale);
 
     }
 

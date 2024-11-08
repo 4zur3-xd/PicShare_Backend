@@ -28,7 +28,12 @@ class NotificationController extends Controller
                 $notification->title = __($notification->title);
                 $content = json_decode($notification->content, true); 
                 if (isset($content['key'])) {
-                    $notification->content = __($content['key'], $content['params']);
+                    if(isset($content['params'])) {
+                        $notification->content = __($content['key'], $content['params']);
+                    }else{
+                        $notification->content = __($content['key']);
+                    }
+                   
                 }
             }
 
@@ -115,7 +120,7 @@ class NotificationController extends Controller
 
         } catch (\Throwable $th) {
             Log::error("Failed to get unseen count: " . $th->getMessage());
-            return ResponseHelper::error(message: "Failed to get unseen count.");
+            return ResponseHelper::error(message: __('failToGetUnseenCount'));
         }
     }
 

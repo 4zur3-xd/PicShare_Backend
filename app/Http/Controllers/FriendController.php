@@ -17,6 +17,7 @@ use App\Http\Resources\UserSummaryResource;
 use App\Models\Friend;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -233,6 +234,12 @@ class FriendController extends Controller
         $contentParams = [
             'name' => $currentUser->name, 
         ];
+
+        $originalLocale = App::getLocale();
+
+        $friendLocale = $friendUser->language ?? 'en'; // Default to 'en' if no locale is set
+        App::setLocale($friendLocale); // Set the app locale to the friend's language temporarily
+    
         $title=__($titleKey);
         $contentDB = json_encode([
             'key' => $messageKey,
@@ -251,11 +258,13 @@ class FriendController extends Controller
         $notification = $this->notificationController->store($request);
         $notificationId = $notification ? $notification->id : null;
         if ($fcmToken) {
-            $translatedContent = __($contentDB, $contentParams);
+            $translatedContent = __($messageKey, $contentParams);
             $notificationData = $this->prepareNotificationData($fcmToken, $title, $translatedContent, $avatar, $friendType, $notificationId);
             $this->firebasePushController->sendNotification(new Request($notificationData));
         }
 
+        // Restore the original locale 
+        App::setLocale(locale: $originalLocale);
     }
 
     /**

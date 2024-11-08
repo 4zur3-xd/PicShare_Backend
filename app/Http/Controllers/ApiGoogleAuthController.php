@@ -6,6 +6,7 @@ use App\Models\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Helper\ResponseHelper;
+use Illuminate\Support\Facades\App;
 
 class ApiGoogleAuthController extends Controller
 {
@@ -20,13 +21,13 @@ class ApiGoogleAuthController extends Controller
             $googleUser = json_decode($response->getBody()->getContents(), true);
 
             if(isset($googleUser['error'])) {
-                $msg = 'Invalid ID token.';
+                $msg = __('invalidIDToken');
                 return ResponseHelper::error(message: $msg);
             }
 
             $usedEmail = User::where('email', $googleUser['email'])->where('google_id', null)->first();
             if($usedEmail){
-                $msg = "Sorry, this email has been registered to an account (Try login with this email and password, not \"Continue with Google\"!).";
+                $msg = __('alreadyRegisteredAccount');
                 return ResponseHelper::error(message: $msg);
             }
 
@@ -51,14 +52,16 @@ class ApiGoogleAuthController extends Controller
                 $authToken = $newUser->createToken('auth_token')->plainTextToken;
                 $userArray = $newUser->toArray();
                 $userArray['access_token'] = $authToken;
-
-                return ResponseHelper::success(data: $userArray);
+                $locale= $user->language;
+                App::setLocale($locale);
+                return ResponseHelper::success(data: $userArray,message: __('loginSuccessfully'));
             }else{
                 $authToken = $user->createToken('auth_token')->plainTextToken;
                 $userArray = $user->toArray();
                 $userArray['access_token'] = $authToken;
-
-                return ResponseHelper::success(data: $userArray);
+                $locale= $user->language;
+                App::setLocale($locale);
+                return ResponseHelper::success(data: $userArray,message: __('loginSuccessfully'));
             }
         } catch (\Throwable $th) {
             return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
