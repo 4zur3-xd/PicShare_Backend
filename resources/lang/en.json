@@ -75,7 +75,10 @@
     "newComment":"New Comment",
     "mewReplyNotification":"New Reply Notification",
     "replyToAnComment":":name replied to a comment you are involved in.",
-    "commentInYourPost":":name commented in your post."
+    "commentInYourPost":":name commented in your post.",
+
+    "postDeleted":"Post deleted",
+    "postDeletedByAdmin":"Your post has been deleted by Admin"
 
 
 }

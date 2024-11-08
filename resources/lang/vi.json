@@ -75,6 +75,9 @@
     "newComment":"Bình luận mới",
     "mewReplyNotification":"Thông báo phản hồi mới",
     "replyToAnComment":":name đã trả lời bình luận bạn đang tham gia.",
-    "commentInYourPost":":name đã bình luận trong bài đăng của bạn."
+    "commentInYourPost":":name đã bình luận trong bài đăng của bạn.",
+
+    "postDeleted":"Bài đăng đã bị xóa",
+    "postDeletedByAdmin":"Bài đăng đã bị xóa bởi quản trị viên"
 
 }

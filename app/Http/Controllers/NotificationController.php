@@ -28,7 +28,12 @@ class NotificationController extends Controller
                 $notification->title = __($notification->title);
                 $content = json_decode($notification->content, true); 
                 if (isset($content['key'])) {
-                    $notification->content = __($content['key'], $content['params']);
+                    if(isset($content['params'])) {
+                        $notification->content = __($content['key'], $content['params']);
+                    }else{
+                        $notification->content = __($content['key']);
+                    }
+                   
                 }
             }
 
