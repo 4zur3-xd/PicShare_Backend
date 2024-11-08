@@ -14,17 +14,24 @@
     "pleaseEnterName":"Please enter a name",
     "pleaseEnterUserCode":"Please enter a user code",
     "noUserFound":"No users found",
+    "accRegisteredSuccessfully":"Register account successful",
+    "loginSuccessfully":"Login successfully",
+    "invalidIDToken":"Invalid ID token",
+    "alreadyRegisteredAccount":"Sorry, this email has been registered to an account (Try login with this email and password, not \"Continue with Google\"!).",
+    "updateDeviceTokenSuccessfully":"Update device token successfully",
 
     "postNotFound":"Post not found",
     "addCommentSuccessfully":"Add comment successfully",
     "commentNotFound":"Comment not found",
     "replyCreatedSuccessfully":"Reply created successfully",
+    "retrieveCommentsSuccessfully":"Get comments successfully",
 
     "createConversationSuccessfully":"Create conversation successfully",
     "failToSendFCM":"Failed to send notification: ",
     "sendMessageFail":"Send message fail",
     "sendMessageSuccessfully":"Send message successfully",
     "conversationNotFound":"Conversation not found",
+    "allMessageRead":"All messages marked as read successfully",
 
     "failToRetrieveNotifications":"Failed to retrieve notifications: ",
     "retrieveNotificationsSuccessfully":"Retrieve notifications successfully",
@@ -34,6 +41,7 @@
     "failToUpdateNotifications":"Failed to update notifications: ",
     "markAsReadSuccessfully":"All unseen notifications marked as seen successfully",
     "failToMarkAsRead":"Failed to mark all notifications as seen: ",
+    "failToGetUnseenCount":"Failed to get unseen count: ",
 
     "failToCreatePostAndTryAgain":"Failed to create post. Please try again.",
     "createPostSuccessfully":"Create post successfully",
@@ -62,8 +70,12 @@
     "deleteFriendSuccessfully":"Delete friend successfully",
     "failToAddFriendTryAgain":"Failed to add friend. Please try again",
     "acceptYourFriendRequest":":name accepted your friend request!",
-    "sentYouFriendRequest":":name sent you a friend request."
+    "sentYouFriendRequest":":name sent you a friend request.",
 
+    "newComment":"New Comment",
+    "mewReplyNotification":"New Reply Notification",
+    "replyToAnComment":":name replied to a comment you are involved in.",
+    "commentInYourPost":":name commented in your post."
 
 
 }

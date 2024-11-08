@@ -16,6 +16,7 @@ use App\Models\Post;
 use App\Models\Reply;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -45,9 +46,9 @@ class CommentController extends Controller
                 'total' => $comments->count(),
                 'listComment' => CommentResource::collection($comments),
             ];
-            return ResponseHelper::success(message: 'Comments retrieved successfully.', data: $arrayData);
+            return ResponseHelper::success(message: __('retrieveCommentsSuccessfully'), data: $arrayData);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg')  . $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -68,11 +69,11 @@ class CommentController extends Controller
             $comment->load('user', 'replies');
             $commentResponse = new CommentResource($comment);
 
-            $this->sendCommentNotification($postOwner->id, ' comment in your post', 'New comment', $id, $comment->id, null);
+            $this->sendCommentNotification($postOwner->id, 'commentInYourPost', 'newComment', $id, $comment->id, null);
             return ResponseHelper::success(message: __('addCommentSuccessfully'), data: $commentResponse, statusCode: 201);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -117,9 +118,9 @@ class CommentController extends Controller
 
             // Send notifications to other users
             if (!empty($userIds)) {
-                $message = ' replied to a comment you are involved in.';
-                $title = 'New Reply Notification';
-                $this->sendCommentNotification($userIds, $message, $title, $post->id, $comment->id, $reply->id);
+                $messageKey = 'replyToAnComment';
+                $titleKey = 'mewReplyNotification';
+                $this->sendCommentNotification($userIds, $messageKey, $titleKey, $post->id, $comment->id, $reply->id);
             }
 
             // load relationships
@@ -131,11 +132,11 @@ class CommentController extends Controller
                 $replyResource,
             );
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
-    private function sendCommentNotification($friendUserIds, $message, $title, ?int $postId, ?int $commentId, ?int $replyId)
+    private function sendCommentNotification($friendUserIds, $messageKey, $titleKey, ?int $postId, ?int $commentId, ?int $replyId)
     {
         $currentUser = auth()->user();
         //Check if $friendUserIds is an array or just 1 ID
@@ -148,16 +149,31 @@ class CommentController extends Controller
             if (!$friendUser) {
                 // continue;
             } else {
-                $content = $currentUser->name . $message;
+                // $content = $currentUser->name . $message;
                 $fcmToken = $friendUser->fcm_token;
                 $avatar = $currentUser->url_avatar;
+
+                $contentParams = [
+                    'name' => $currentUser->name,
+                ];
+
+                $originalLocale = App::getLocale();
+
+                $friendLocale = $friendUser->language ?? 'en'; // Default to 'en' if no locale is set
+                App::setLocale($friendLocale); // Set the app locale to the friend's language temporarily
+
+                $title = __($titleKey);
+                $contentDB = json_encode([
+                    'key' => $messageKey,
+                    'params' => $contentParams,
+                ]);
 
                 // Create notification record
                 $linkTo = LinkToHelper::createLinkTo(NotificationPayloadType::COMMENT, null, $postId, $commentId, $replyId);
                 $request = new StoreNotificationRequest([
-                    'title' => $title,
+                    'title' => $titleKey,
                     'user_id' => $friendUser->id,
-                    'content' => $content,
+                    'content' => $contentDB,
                     'link_to' => $linkTo,
                     'notification_type' => NotificationType::USER,
                 ]);
@@ -165,9 +181,13 @@ class CommentController extends Controller
                 $notificationId = $notification ? $notification->id : null;
 
                 if ($fcmToken) {
-                    $notificationData = $this->prepareNotificationData($fcmToken, $title, $content, $avatar, $postId, $commentId, $replyId, $notificationId);
+                    $translatedContent = __($messageKey, $contentParams);
+                    $notificationData = $this->prepareNotificationData($fcmToken, $title, $translatedContent, $avatar, $postId, $commentId, $replyId, $notificationId);
                     $this->firebasePushController->sendNotification(new Request($notificationData));
                 }
+
+                // Restore the original locale
+                App::setLocale(locale: $originalLocale);
 
             }
 

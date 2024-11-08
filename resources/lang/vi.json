@@ -14,17 +14,24 @@
     "pleaseEnterName":"Vui lòng nhập tên",
     "pleaseEnterUserCode":"Vui lòng nhập mã người dùng",
     "noUserFound":"Không tìm thấy người dùng nào",
+    "accRegisteredSuccessfully":"Đăng ký thành công",
+    "loginSuccessfully":"Đăng nhập thành công",
+    "invalidIDToken":"Mã ID không hợp lệ",
+    "alreadyRegisteredAccount":"Xin lỗi, email này đã được đăng ký cho một tài khoản (Vui lòng thử đăng nhập bằng email và mật khẩu này, không phải \"Tiếp tục với Google\"!)",
+    "updateDeviceTokenSuccessfully":"Cập nhật mã thiết bị thành công",
 
     "postNotFound":"Không tìm thấy bài viết nào",
     "addCommentSuccessfully":"Thêm bình luận thành công",
     "commentNotFound":"Không tìm thấy bình luận",
     "replyCreatedSuccessfully":"Trả lời đã được tạo thành công",
+    "retrieveCommentsSuccessfully":"Tải bình luận thành công",
 
     "createConversationSuccessfully":"Tạo cuộc trò chuyện thành công",
     "failToSendFCM":"Không gửi được thông báo: ",
     "sendMessageFail":"Gửi tin nhắn không thành công",
     "sendMessageSuccessfully":"Gửi tin nhắn thành công",
     "conversationNotFound":"Không tìm thấy cuộc trò chuyện",
+    "allMessageRead":"Tất cả tin nhắn được đánh dấu là đã đọc thành công",
 
     "failToRetrieveNotifications":"Không truy xuất được thông báo: ",
     "retrieveNotificationsSuccessfully":"Truy xuất thông báo thành công",
@@ -34,6 +41,7 @@
     "failToUpdateNotifications":"Không cập nhật được thông báo: ",
     "markAsReadSuccessfully":"Tất cả thông báo chưa xem đã được đánh dấu là đã xem thành công",
     "failToMarkAsRead":"Không đánh dấu được tất cả thông báo là đã xem: ",
+    "failToGetUnseenCount":"Không lấy được số lượng chưa xem: ",
 
     "failToCreatePostAndTryAgain":"Không tạo được bài đăng. Vui lòng thử lại.",
     "createPostSuccessfully":"Tạo bài đăng thành công",
@@ -62,6 +70,11 @@
     "deleteFriendSuccessfully":"Xóa bạn bè thành công",
     "failToAddFriendTryAgain":"Không thêm được bạn bè. Vui lòng thử lại",
     "acceptYourFriendRequest":":name đã chấp nhận yêu cầu kết bạn của bạn!",
-    "sentYouFriendRequest":":name đã gửi cho bạn một yêu cầu kết bạn."
+    "sentYouFriendRequest":":name đã gửi cho bạn một yêu cầu kết bạn.",
+
+    "newComment":"Bình luận mới",
+    "mewReplyNotification":"Thông báo phản hồi mới",
+    "replyToAnComment":":name đã trả lời bình luận bạn đang tham gia.",
+    "commentInYourPost":":name đã bình luận trong bài đăng của bạn."
 
 }

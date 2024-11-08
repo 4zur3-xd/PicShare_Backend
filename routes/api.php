@@ -20,9 +20,10 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserLogController;
 use App\Http\Middleware\AppLocalization;
+use App\Helper\ResponseHelper;
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
+    return ResponseHelper::success(data: $request->user());
 })->middleware(['auth:sanctum', BanStatusMiddleware::class,AppLocalization::class]);
 
 Route::post('/register', [ApiAuthController::class, 'register'])->middleware([AppLocalization::class]);

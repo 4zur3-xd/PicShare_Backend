@@ -52,7 +52,7 @@ class GetReportsController extends Controller
 
             return $data; // return all data just in case i mess up pagination lol
         } catch (\Throwable $th) {
-            return ResponseHelper::error($th->getMessage());
+            return ResponseHelper::error( __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -77,7 +77,7 @@ class GetReportsController extends Controller
                 ]);
             }
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -102,7 +102,7 @@ class GetReportsController extends Controller
                 ]);
             }
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -127,7 +127,7 @@ class GetReportsController extends Controller
                 ]);
             }
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message: $th->getMessage());
+            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 }

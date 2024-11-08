@@ -115,7 +115,7 @@ class NotificationController extends Controller
 
         } catch (\Throwable $th) {
             Log::error("Failed to get unseen count: " . $th->getMessage());
-            return ResponseHelper::error(message: "Failed to get unseen count.");
+            return ResponseHelper::error(message: __('failToGetUnseenCount'));
         }
     }
 
