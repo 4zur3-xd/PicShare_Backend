@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enum\FriendStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -97,9 +99,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserLog::class);
     }
-    public function friends(): HasMany
+    public function friends(): BelongsToMany
     {
-        return $this->hasMany(Friend::class);
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id');
+
     }
 
     public function conversations(): BelongsToMany
@@ -111,5 +114,34 @@ class User extends Authenticatable
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
+    }
+
+
+    public function friendsSent()
+    {
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
+            ->withPivot('status')
+            ->wherePivot('status', FriendStatus::FRIEND);
+    }
+
+    public function friendsReceived()
+    {
+        return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')
+            ->withPivot('status')
+            ->wherePivot('status', FriendStatus::FRIEND);
+    }
+
+    public function friendsSentPending()
+    {
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
+            ->withPivot('status')
+            ->wherePivot('status', FriendStatus::PENDING);
+    }
+
+    public function friendsReceivedPending()
+    {
+        return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')
+            ->withPivot('status')
+            ->wherePivot('status', FriendStatus::PENDING);
     }
 }
