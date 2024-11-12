@@ -21,16 +21,18 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserLogController;
 use App\Http\Middleware\AppLocalization;
 use App\Helper\ResponseHelper;
+use App\Http\Middleware\JwtMiddleware;
 
 Route::get('/user', function (Request $request) {
     return ResponseHelper::success(data: $request->user());
-})->middleware(['auth:sanctum', BanStatusMiddleware::class,AppLocalization::class]);
+})->middleware([JwtMiddleware::class, BanStatusMiddleware::class,AppLocalization::class]);
 
 Route::post('/register', [ApiAuthController::class, 'register'])->middleware([AppLocalization::class]);
 Route::post('/login', [ApiAuthController::class, 'login'])->middleware([AppLocalization::class]);
 Route::post('/auth/callback', [ApiGoogleAuthController::class, 'callback']);
+Route::get('/auth/refresh_token', [ApiAuthController::class, 'refreshNewAccessToken']);
 
-Route::middleware(['auth:sanctum', BanStatusMiddleware::class, AppLocalization::class])->group(function(){
+Route::middleware([JwtMiddleware::class, BanStatusMiddleware::class, AppLocalization::class])->group(function(){
     Route::get('/logout', [ApiAuthController::class, 'logout']);
     Route::delete('/user/delete', [ApiUserController::class, 'destroy']);
     Route::patch('/user/update', [ApiUserController::class, 'update']);
@@ -40,7 +42,7 @@ Route::middleware(['auth:sanctum', BanStatusMiddleware::class, AppLocalization::
 });
 
 // nofitications
-Route::post('/set_fcm_token', [FirebasePushController::class, 'setToken'])->middleware(['auth:sanctum', BanStatusMiddleware::class]);
+Route::post('/set_fcm_token', [FirebasePushController::class, 'setToken'])->middleware([JwtMiddleware::class, BanStatusMiddleware::class]);
 
 Route::post('/send_notification', [FirebasePushController::class, 'sendNotification']);
 
@@ -48,7 +50,7 @@ Route::post('/send_bulk_notification', [FirebasePushController::class, 'sendNoti
 
 // friends
 
-Route::middleware(['auth:sanctum', BanStatusMiddleware::class,AppLocalization::class])->prefix('friend')->group(function () {
+Route::middleware([JwtMiddleware::class, BanStatusMiddleware::class,AppLocalization::class])->prefix('friend')->group(function () {
     Route::post('make_friend', [FriendController::class, 'store'])->name('friend.store');
     Route::get('update_friend/{id}', [FriendController::class, 'update']);
     Route::get('delete_friend/{id}', [FriendController::class, 'destroy'])->name('friend.destroy');
@@ -60,7 +62,7 @@ Route::middleware(['auth:sanctum', BanStatusMiddleware::class,AppLocalization::c
 });
 
 // post
-Route::middleware(['auth:sanctum', BanStatusMiddleware::class,AppLocalization::class])->prefix('post')->group(function () {
+Route::middleware([JwtMiddleware::class, BanStatusMiddleware::class,AppLocalization::class])->prefix('post')->group(function () {
     Route::post('create', [PostController::class, 'store'])->name('post.store');
     // Route::get('update/{id}', [PostController::class, 'update']);
     Route::delete('delete/{id}', [PostController::class, 'destroy'])->name('post.destroy');
@@ -93,7 +95,7 @@ Route::middleware(['auth:sanctum', BanStatusMiddleware::class,AppLocalization::c
 
 });
 
-Route::middleware(['auth:sanctum', AdminMiddleware::class, BanStatusMiddleware::class,AppLocalization::class])->prefix('admin')->group(function()
+Route::middleware([JwtMiddleware::class, AdminMiddleware::class, BanStatusMiddleware::class,AppLocalization::class])->prefix('admin')->group(function()
 {
     Route::get('reports/get/{page?}', [GetReportsController::class, 'getReports']);
     Route::get('reports/get_by_post/{id?}', [GetReportsController::class, 'getReportByPost']);
@@ -102,10 +104,10 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class, BanStatusMiddleware::
 });
 
 // user logs
-Route::get('/user_logs', [UserLogController::class, 'getUserLogs'])->middleware(['auth:sanctum', BanStatusMiddleware::class]);
+Route::get('/user_logs', [UserLogController::class, 'getUserLogs'])->middleware([JwtMiddleware::class, BanStatusMiddleware::class]);
 
 // notifications
-Route::middleware(['auth:sanctum', BanStatusMiddleware::class,AppLocalization::class])->prefix('notifications')->group(function (){
+Route::middleware([JwtMiddleware::class, BanStatusMiddleware::class,AppLocalization::class])->prefix('notifications')->group(function (){
     Route::get('/', [NotificationController::class, 'getNotifications']);
     Route::get('/get_unseen_count', [NotificationController::class, 'getUnseenCount']);
     Route::post('/mark_as_read/{id}', [NotificationController::class, 'update']);
@@ -114,7 +116,7 @@ Route::middleware(['auth:sanctum', BanStatusMiddleware::class,AppLocalization::c
 
 
 // conversations
-Route::middleware(['auth:sanctum', BanStatusMiddleware::class,AppLocalization::class])->prefix('conversations')->group(function (){
+Route::middleware([JwtMiddleware::class, BanStatusMiddleware::class,AppLocalization::class])->prefix('conversations')->group(function (){
     Route::get('/', [ConversationController::class, 'index']);
     Route::get('{id}/messages', [ConversationController::class, 'getMessages']);
     Route::post('/send_message', [MessageController::class, 'store']);
