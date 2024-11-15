@@ -27,7 +27,7 @@ class JwtMiddleware
             }
 
             App::setLocale($locale);
-            return ResponseHelper::error(message: __('tokenExpired'));   
+            return ResponseHelper::error(message: __('tokenExpired'),statusCode: 401);   
         }
         return $next($request);
     }
