@@ -78,7 +78,11 @@
     "commentInYourPost":":name commented in your post.",
 
     "postDeleted":"Post deleted",
-    "postDeletedByAdmin":"Your post has been deleted by Admin"
+    "postDeletedByAdmin":"Your post has been deleted by Admin",
+
+    "tokenExpired":"Token expired",
+    "tokenNotValid":"Token is not valid",
+    "refreshTokenIsRequired":"Refresh token is required"
 
 
 }

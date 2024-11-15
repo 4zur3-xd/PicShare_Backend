@@ -78,6 +78,10 @@
     "commentInYourPost":":name đã bình luận trong bài đăng của bạn.",
 
     "postDeleted":"Bài đăng đã bị xóa",
-    "postDeletedByAdmin":"Bài đăng đã bị xóa bởi quản trị viên"
+    "postDeletedByAdmin":"Bài đăng đã bị xóa bởi quản trị viên",
+
+    "tokenExpired":"Mã token đã hết hạn",
+    "tokenNotValid":"Mã token không hợp lệ",
+    "refreshTokenIsRequired":"Cần cung cấp mã refresh token"
 
 }
