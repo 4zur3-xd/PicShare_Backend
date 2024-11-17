@@ -86,7 +86,7 @@ class PostController extends Controller
             DB::commit();
 
             // send event
-           $this->sentPostCreationEvent($dataCreate['type'], $post,$sharedWith);
+            $this->sentPostCreationEvent($dataCreate['type'], $post, $sharedWith);
             return ResponseHelper::success(message: __('createPostSuccessfully'), data: $post);
         } catch (\Throwable $th) {
             DB::rollback();
@@ -94,14 +94,31 @@ class PostController extends Controller
         }
     }
 
+    // private function getFriendsForPost($user)
+    // {
+    //     return Friend::where(function ($query) use ($user) {
+    //         $query->where('user_id', $user->id)
+    //             ->orWhere('friend_id', $user->id);
+    //     })->where('status', FriendStatus::FRIEND)
+    //         ->pluck('friend_id') // Lấy danh sách ID bạn bè
+    //         ->toArray();
+    // }
 
     private function getFriendsForPost($user)
     {
         return Friend::where(function ($query) use ($user) {
+
             $query->where('user_id', $user->id)
                 ->orWhere('friend_id', $user->id);
-        })->where('status', FriendStatus::FRIEND)
-            ->pluck('friend_id') // Lấy danh sách ID bạn bè
+        })
+            ->where('status', FriendStatus::FRIEND) // Lọc trạng thái là 'friend'
+            ->get()
+            ->flatMap(function ($friend) use ($user) {
+                // If user_id is the current user, get friend_id
+                // If friend_id is the current user, get user_id
+                return $friend->user_id === $user->id ? [$friend->friend_id] : [$friend->user_id];
+            })
+            ->unique()
             ->toArray();
     }
 
@@ -313,7 +330,7 @@ class PostController extends Controller
 
             return ResponseHelper::success(message: $msg, data: $report);
         } catch (\Throwable $th) {
-            ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
+            ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
 
@@ -406,11 +423,11 @@ class PostController extends Controller
             ];
             return ResponseHelper::success(data: $response);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
 
     }
- 
+
     public function getPostsWithLocation(Request $request)
     {
         try {
@@ -429,23 +446,25 @@ class PostController extends Controller
             $response = PostResource::collection($posts);
             return ResponseHelper::success(data: $response);
         } catch (\Throwable $th) {
-            return ResponseHelper::error(message:  __('somethingWentWrongWithMsg') . $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
 
     }
 
     // helper methods
-    public function sentPostCreationEvent($type, $post,$sharedWith){
+    public function sentPostCreationEvent($type, $post, $sharedWith)
+    {
         $user = auth()->user();
-              
+
         if (empty($sharedWith) && $type == SharedPostType::ALL_FRIENDS) {
             $sharedWith = $this->getFriendsForPost($user);
         }
+        // add current user
+        $sharedWith[] = $user->id;
 
-     
         $postWithRelations = Post::with(['user', 'comments.user', 'comments.replies.user'])->find($post->id);
         $postDetailResource = new PostDetailResource($postWithRelations);
-        
+
         event(new PostEvent($postDetailResource, $sharedWith));
     }
     public function getUserViewsData($postId, $currentUserId)
