@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\ImageHelper;
 use App\Helper\ResponseHelper;
 use App\Models\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Http;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ApiGoogleAuthController extends Controller
@@ -57,11 +59,13 @@ class ApiGoogleAuthController extends Controller
 
     private function createNewUser($googleUser)
     {
+        $imageFile = $this->downloadGoogleImage($googleUser['picture']);
+        
         $newUser = User::create([
             'name' => $googleUser['given_name'],
             'email' => $googleUser['email'],
             'google_id' => $googleUser['id'],
-            'url_avatar' => $googleUser['picture'],
+            'url_avatar' => $imageFile,
             'email_verified_at' => now(),
         ]);
 
@@ -84,4 +88,34 @@ class ApiGoogleAuthController extends Controller
 
         return $userArray;
     }
+
+    public function downloadGoogleImage($url)
+{
+    $response = Http::get($url);
+
+    if ($response->ok()) {
+        // Create a temporary file for the image
+        $tempFile = tempnam(sys_get_temp_dir(), 'google-profile-');
+        file_put_contents($tempFile, $response->body());
+
+        // Convert the temporary file into an UploadedFile instance
+        $uploadedFile = new \Illuminate\Http\UploadedFile(
+            $tempFile,
+            'google-profile-' . uniqid() . '.jpg',
+            null,
+            null,
+            true // Set "true" for test mode (bypasses file validation)
+        );
+
+        // Use the saveAndGenerateUrl helper to save and generate the URL
+        $newImageUrl = ImageHelper::saveAndGenerateUrl($uploadedFile, 'public/images');
+
+        // Clean up the temporary file
+        unlink($tempFile);
+
+        return $newImageUrl;
+    }
+
+    return null;
+}
 }
