@@ -23,15 +23,25 @@ use App\Http\Middleware\AppLocalization;
 use App\Helper\ResponseHelper;
 use App\Http\Middleware\JwtMiddleware;
 
+// user profile
 Route::get('/user', function (Request $request) {
     return ResponseHelper::success(data: $request->user());
 })->middleware([JwtMiddleware::class, BanStatusMiddleware::class,AppLocalization::class]);
 
+
+// auth
 Route::post('/register', [ApiAuthController::class, 'register'])->middleware([AppLocalization::class]);
 Route::post('/login', [ApiAuthController::class, 'login'])->middleware([AppLocalization::class]);
 Route::post('/auth/callback', [ApiGoogleAuthController::class, 'callback']);
 Route::get('/auth/refresh_token', [ApiAuthController::class, 'refreshNewAccessToken']);
+Route::middleware([JwtMiddleware::class, BanStatusMiddleware::class,AppLocalization::class])->prefix('auth')->group(function(){
+    Route::post('update_state_2fa', [ApiAuthController::class, 'toggle2FA']);
+    Route::post('verify_2fa', [ApiAuthController::class, 'verify2FA']);
+    Route::post('confirm_enable_2fa', [ApiAuthController::class, 'confirmEnable2FA']);
+});
 
+
+// user 
 Route::middleware([JwtMiddleware::class, BanStatusMiddleware::class, AppLocalization::class])->group(function(){
     Route::get('/logout', [ApiAuthController::class, 'logout']);
     Route::delete('/user/delete', [ApiUserController::class, 'destroy']);
