@@ -82,6 +82,14 @@
 
     "tokenExpired":"Mã token đã hết hạn",
     "tokenNotValid":"Mã token không hợp lệ",
-    "refreshTokenIsRequired":"Cần cung cấp mã refresh token"
+    "refreshTokenIsRequired":"Cần cung cấp mã refresh token",
 
+    "invalid2FACode":"Mã 2FA không hợp lệ",
+    "2FACodeExpired":"Mã 2FA đã hết hành",
+    "2FACodeNotValid":"Mã 2FA không hợp lệ",
+    "2FACodeRequired":"Cần cung cấp mã 2FA",
+    "verify2FASuccessfully":"Xác thực 2FA thành công",
+    "2faEnabledSuccessfully":"Đã bật 2FA thành công",
+    "2FASetupExpired":"Thiết lập 2FA đã hết hạn hoặc chưa được khởi tạo",
+    "continueToCheck2FA":"Tiếp tục kiểm tra xác thực hai yếu tố"
 }

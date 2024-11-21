@@ -27,6 +27,9 @@ return new class extends Migration
             $table->enum('role', Role::getValues())->default(Role::USER);
             $table->enum('language', Language::getValues())->default(Language::EN);
             $table->tinyInteger('status')->default(1)->comment('1: active; 0: banned;');
+            $table->string('google2fa_secret')->nullable();
+            $table->boolean('google2fa_enable')->default(false);
+            $table->boolean('is_private_account')->default(false);
             $table->timestamps();
         });
 

@@ -82,7 +82,16 @@
 
     "tokenExpired":"Token expired",
     "tokenNotValid":"Token is not valid",
-    "refreshTokenIsRequired":"Refresh token is required"
+    "refreshTokenIsRequired":"Refresh token is required",
+
+    "invalid2FACode":"Invalid 2FA code",
+    "2FACodeExpired":"Expired 2FA code",
+    "2FACodeNotValid":"Invalid 2FA code",
+    "2FACodeRequired":"Required 2FA code",
+    "verify2FASuccessfully":"2FA verification successful",
+    "2faEnabledSuccessfully":"2FA enabled successfully",
+    "2FASetupExpired":"2FA setup expired or not initiated",
+    "continueToCheck2FA":"Continue to check 2fa "
 
 
 }

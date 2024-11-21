@@ -36,6 +36,9 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at',
         'status',
         'language',
+        'google2fa_secret',
+        'google2fa_enable',
+        'is_private_account',
     ];
 
     /**
@@ -100,6 +103,8 @@ class User extends Authenticatable implements JWTSubject
             "google_id" => $this->google_id,
             "user_code" => $this->user_code,
             "ban_status" => $this->status,
+            'is_private_account' => $this->is_private_account,
+            'google2fa_enable' => $this->google2fa_enable,
             "config" => [
                 "language" => $this->language,
                 "fcm_token" => $this->fcm_token,
