@@ -17,7 +17,7 @@ class ImageHelper
         return Storage::url($imagePath);
     }
 
-    public static function saveAndGenerateUrl($imageFile, $folder = 'public/images'): ?string
+    public static function saveAndGenerateUrl($imageFile, $folder = 'private/images'): ?string
     {
         if ($imageFile) {
             // Save the file to the specified folder and get the relative path
@@ -25,7 +25,7 @@ class ImageHelper
             $path = $imageFile->storeAs($folder, $fileName); 
     
             // Generate the public URL from the stored path
-            $publicPath = str_replace('public/', '', $path); // Remove 'public/' from the path
+            $publicPath = str_replace('private/', '', $path); // Remove 'public/' from the path
             return Storage::url($publicPath);
         }
 

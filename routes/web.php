@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AdminWeb\DashboardController;
 use App\Http\Controllers\AdminWeb\UserInfoController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\JwtMiddleware;
 use App\Http\Middleware\WebMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -27,5 +29,9 @@ Route::post('/u/{id?}/delete-avatar', [UserInfoController::class, 'deleteAvatar'
 
 Route::get('auth/google', [GoogleAuthController::class, 'redirect'])->name('google-auth');
 Route::get('auth/callback', [GoogleAuthController::class, 'callback']);
+
+// images
+Route::get('/storage/images/{filePath}', [FileController::class, 'getPrivateFile'])->middleware([JwtMiddleware::class])
+    ->name('private-file');
 
 require __DIR__.'/auth.php';
