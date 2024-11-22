@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helper\ResponseHelper;
+use App\Mail\LoginEventMail;
 use App\Helper\TokenHelper;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules;
@@ -73,6 +75,8 @@ class ApiAuthController extends Controller
             $validateUser = Validator::make($request->all(), [
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'exists:users,email'],
                 'password' => ['required', Rules\Password::defaults()],
+                'device_id' => ['nullable', 'string',],
+                'device_name' => ['nullable', 'string', ],
             ]);
 
             if ($validateUser->fails()) {
@@ -105,6 +109,13 @@ class ApiAuthController extends Controller
                 $userArray['refresh_token'] = $refreshToken;
                 $message = __('loginSuccessfully');
             }
+
+
+            // send login event to mail
+            if($user->is_login_email_enabled){
+                Mail::to($request->user())->send(new LoginEventMail(deviceId: $request->device_id, deviceName: $request->device_name));
+            }
+            
 
             return ResponseHelper::success(data: $userArray, message: $message);
 
