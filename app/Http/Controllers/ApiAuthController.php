@@ -75,6 +75,8 @@ class ApiAuthController extends Controller
             $validateUser = Validator::make($request->all(), [
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'exists:users,email'],
                 'password' => ['required', Rules\Password::defaults()],
+                'device_id' => ['nullable', 'string',],
+                'device_name' => ['nullable', 'string', ],
             ]);
 
             if ($validateUser->fails()) {
@@ -110,7 +112,10 @@ class ApiAuthController extends Controller
 
 
             // send login event to mail
-            Mail::to($request->user())->send(new LoginEventMail());
+            if($user->is_login_email_enabled){
+                Mail::to($request->user())->send(new LoginEventMail(deviceId: $request->device_id, deviceName: $request->device_name));
+            }
+            
 
             return ResponseHelper::success(data: $userArray, message: $message);
 

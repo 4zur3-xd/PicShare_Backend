@@ -13,12 +13,17 @@ class LoginEventMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $deviceId;
+    public $deviceName;
+
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($deviceId = null, $deviceName = null)
     {
         //
+        $this->deviceId = $deviceId;
+        $this->deviceName = $deviceName;
     }
 
     /**
