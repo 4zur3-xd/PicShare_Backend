@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('google2fa_secret')->nullable();
             $table->boolean('google2fa_enable')->default(false);
             $table->boolean('is_private_account')->default(false);
-            $table->boolean('is_login_email_enabled')->default(true);
+            $table->boolean('is_login_email_enabled')->default(false);
             $table->timestamps();
         });
 

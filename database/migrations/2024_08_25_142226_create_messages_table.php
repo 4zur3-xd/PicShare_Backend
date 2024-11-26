@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(Conversation::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
-            $table->string('text')->nullable();
+            $table->text('text')->nullable();
             $table->string('url_image')->nullable();
             $table->enum('message_type',MessageType::getValues())->default(MessageType::TEXT);
             $table->double('height')->nullable();

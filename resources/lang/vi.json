@@ -91,5 +91,11 @@
     "verify2FASuccessfully":"Xác thực 2FA thành công",
     "2faEnabledSuccessfully":"Đã bật 2FA thành công",
     "2FASetupExpired":"Thiết lập 2FA đã hết hạn hoặc chưa được khởi tạo",
-    "continueToCheck2FA":"Tiếp tục kiểm tra xác thực hai yếu tố"
+    "continueToCheck2FA":"Tiếp tục kiểm tra xác thực hai yếu tố",
+
+    "emailIsRequire":"Email là bắt buộc.",
+    "invalidEmail": "Email phải là địa chỉ email hợp lệ.",
+    "alreadyTakenEmail": "Email này đã được sử dụng",
+    "passwordIsRequired":"Mật khẩu là bắt buộc.",
+    "passwordNotMatch":"Xác nhận mật khẩu không khớp."
 }
