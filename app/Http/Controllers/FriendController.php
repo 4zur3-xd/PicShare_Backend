@@ -16,6 +16,7 @@ use App\Http\Resources\FriendResource;
 use App\Http\Resources\UserSummaryResource;
 use App\Models\Comment;
 use App\Models\Friend;
+use App\Models\Notification;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\UserLike;
@@ -72,7 +73,7 @@ class FriendController extends Controller
             );
         } catch (\Throwable $th) {
             DB::rollBack();
-            return ResponseHelper::error(message:__('somethingWentWrongWithMsg') . $th->getMessage());
+            return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
 
     }
@@ -97,7 +98,7 @@ class FriendController extends Controller
             $friend = Friend::findOrFail($id);
             Gate::authorize('modify', $friend);
             $friend->update($request->all());
-            $this->sendFriendRequestNotification($friend->user_id,'acceptYourFriendRequest', 'friendRequest', FriendType::FRIEND);
+            $this->sendFriendRequestNotification($friend->user_id, 'acceptYourFriendRequest', 'friendRequest', FriendType::FRIEND);
             DB::commit();
             return ResponseHelper::success(message: __('updateFriendSuccessfully'));
         } catch (\Throwable $th) {
@@ -110,13 +111,27 @@ class FriendController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy($id)
-    {
+    {   
+        DB::beginTransaction();
         try {
+            $currentUser = auth()->user();
             $friend = Friend::findOrFail($id);
             Gate::authorize('modify', $friend);
+          
+
+            $notifications = Notification::where('user_id', $friend->friend_id)
+                ->where('sender_id', $currentUser->id)
+                ->whereJsonContains('link_to', ['link_to_type' => NotificationPayloadType::FRIEND_REQUEST])
+                ->get();
+
+            foreach ($notifications as $notification) {
+                $notification->delete();
+            }
             $friend->delete();
+            DB::commit();
             return ResponseHelper::success(message: __('deleteFriendSuccessfully'));
         } catch (\Throwable $th) {
+            DB::rollBack();
             return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $th->getMessage());
         }
     }
@@ -235,18 +250,18 @@ class FriendController extends Controller
         $avatar = $currentUser->url_avatar;
 
         $contentParams = [
-            'name' => $currentUser->name, 
+            'name' => $currentUser->name,
         ];
 
         $originalLocale = App::getLocale();
 
         $friendLocale = $friendUser->language ?? 'en'; // Default to 'en' if no locale is set
         App::setLocale($friendLocale); // Set the app locale to the friend's language temporarily
-    
-        $title=__($titleKey);
+
+        $title = __($titleKey);
         $contentDB = json_encode([
             'key' => $messageKey,
-            'params' => $contentParams
+            'params' => $contentParams,
         ]);
 
         // Create notification record
@@ -266,7 +281,7 @@ class FriendController extends Controller
             $this->firebasePushController->sendNotification(new Request($notificationData));
         }
 
-        // Restore the original locale 
+        // Restore the original locale
         App::setLocale(locale: $originalLocale);
     }
 
@@ -292,106 +307,107 @@ class FriendController extends Controller
             userAvatar: auth()->user()->url_avatar,
         );
     }
-    
 
+    public function getMutualFriendsScore(User $user, User $potentialFriend)
+    {
+        // Get the list of friend IDs that the user has sent friend requests to
+        $userFriendIdsSent = $user->friendsSent()->pluck('friend_id')->toArray();
 
-    public function getMutualFriendsScore(User $user, User $potentialFriend) {
-    // Get the list of friend IDs that the user has sent friend requests to
-    $userFriendIdsSent = $user->friendsSent()->pluck('friend_id')->toArray();
+        // Get the list of friend IDs that the user has accepted friend requests from
+        $userFriendIdsReceived = $user->friendsReceived()->pluck('user_id')->toArray();
 
-    // Get the list of friend IDs that the user has accepted friend requests from
-    $userFriendIdsReceived = $user->friendsReceived()->pluck('user_id')->toArray();
+        // Combine both user's friend lists and remove duplicates
+        $allUserFriendIds = array_unique(array_merge($userFriendIdsSent, $userFriendIdsReceived));
 
-    // Combine both user's friend lists and remove duplicates
-    $allUserFriendIds = array_unique(array_merge($userFriendIdsSent, $userFriendIdsReceived));
+        // Get the list of potentialFriend's friend IDs similarly
+        $potentialFriendIdsSent = $potentialFriend->friendsSent()->pluck('friend_id')->toArray();
+        $potentialFriendIdsReceived = $potentialFriend->friendsReceived()->pluck('user_id')->toArray();
 
-    // Get the list of potentialFriend's friend IDs similarly
-    $potentialFriendIdsSent = $potentialFriend->friendsSent()->pluck('friend_id')->toArray();
-    $potentialFriendIdsReceived = $potentialFriend->friendsReceived()->pluck('user_id')->toArray();
+        // Combine both potentialFriend's friend lists and remove duplicates
+        $allPotentialFriendIds = array_unique(array_merge($potentialFriendIdsSent, $potentialFriendIdsReceived));
 
-   // Combine both potentialFriend's friend lists and remove duplicates
-    $allPotentialFriendIds = array_unique(array_merge($potentialFriendIdsSent, $potentialFriendIdsReceived));
+        // Find the intersection of two lists to determine common friends
+        $mutualFriendsCount = count(array_intersect($allUserFriendIds, $allPotentialFriendIds));
 
-    // Find the intersection of two lists to determine common friends
-    $mutualFriendsCount = count(array_intersect($allUserFriendIds, $allPotentialFriendIds));
-
-    return $mutualFriendsCount * 4;
+        return $mutualFriendsCount * 4;
     }
-
 
     public function getLikesScore(User $user, User $potentialFriend)
     {
         // Get all your friends' posts from both directions
         $friendPostIds = Post::whereIn('user_id', array_merge(
-                            $user->friendsSent->pluck('id')->toArray(),
-                            $user->friendsReceived->pluck('id')->toArray()
-                        ))->pluck('id');
-    
+            $user->friendsSent->pluck('id')->toArray(),
+            $user->friendsReceived->pluck('id')->toArray()
+        ))->pluck('id');
+
         // Count potentialFriend's likes on these posts
         $likeCount = UserLike::whereIn('post_id', $friendPostIds)
-                    ->where('user_id', $potentialFriend->id)
-                    ->count();
-    
+            ->where('user_id', $potentialFriend->id)
+            ->count();
+
         return $likeCount * 1;
     }
-    
+
     public function getCommentsScore(User $user, User $potentialFriend)
     {
-       // Get all your friends' posts from both directions
+        // Get all your friends' posts from both directions
         $friendPostIds = Post::whereIn('user_id', array_merge(
-                            $user->friendsSent->pluck('id')->toArray(),
-                            $user->friendsReceived->pluck('id')->toArray()
-                        ))->pluck('id');
-    
-       // Count potentialFriend's comments on these posts
+            $user->friendsSent->pluck('id')->toArray(),
+            $user->friendsReceived->pluck('id')->toArray()
+        ))->pluck('id');
+
+        // Count potentialFriend's comments on these posts
         $commentCount = Comment::whereIn('post_id', $friendPostIds)
-                       ->where('user_id', $potentialFriend->id)
-                       ->count();
-    
+            ->where('user_id', $potentialFriend->id)
+            ->count();
+
         return $commentCount * 2;
     }
-    
-    public function calculateSuggestionScore(User $user, User $potentialFriend) {
+
+    public function calculateSuggestionScore(User $user, User $potentialFriend)
+    {
         $score = 0;
         $score += $this->getMutualFriendsScore($user, $potentialFriend);
         $score += $this->getLikesScore($user, $potentialFriend);
         $score += $this->getCommentsScore($user, $potentialFriend);
         return $score;
     }
-    
-    public function getSuggestedFriends($user) {
+
+    public function getSuggestedFriends($user)
+    {
         $allUsers = User::where('id', '!=', $user->id)
-        ->whereDoesntHave('friendsSentPending', function ($query) use ($user) {
-            $query->where('friend_id', $user->id);
-        })
-        ->whereDoesntHave('friendsReceivedPending', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
-        ->whereDoesntHave('friendsSent', function ($query) use ($user) {
-            $query->where('friend_id', $user->id);
-        })
-        ->whereDoesntHave('friendsReceived', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
-        ->get();
-    
+            ->whereDoesntHave('friendsSentPending', function ($query) use ($user) {
+                $query->where('friend_id', $user->id);
+            })
+            ->whereDoesntHave('friendsReceivedPending', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->whereDoesntHave('friendsSent', function ($query) use ($user) {
+                $query->where('friend_id', $user->id);
+            })
+            ->whereDoesntHave('friendsReceived', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->get();
+
         $suggestions = [];
         foreach ($allUsers as $potentialFriend) {
             $score = $this->calculateSuggestionScore($user, $potentialFriend);
             if ($score > 0) {
                 $suggestions[] = [
                     'user' => new UserSummaryResource($potentialFriend),
-                    'score' => $score
+                    'score' => $score,
                 ];
             }
         }
-        
+
         usort($suggestions, fn($a, $b) => $b['score'] <=> $a['score']);
-        
+
         return $suggestions;
     }
-    
-    public function suggestFriends(Request $request) {
+
+    public function suggestFriends(Request $request)
+    {
         try {
             $user = auth()->user();
             $suggestedFriends = $this->getSuggestedFriends($user);
