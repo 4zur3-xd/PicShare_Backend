@@ -14,6 +14,7 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -70,10 +71,14 @@ class MessageController extends Controller
                 return ResponseHelper::error(message: __('conversationNotFound'), status: 404);
             }
 
+            // encrypt text 
+            $msg =  $validatedData['text'];
+            $encryptedMessage =  $msg ? Crypt::encrypt($msg) : null; 
+
             $message = Message::create([
                 'user_id' => Auth::id(),
                 'conversation_id' => $conversation->id,
-                'text' => $validatedData['text'] ?? null,
+                'text' => $encryptedMessage,
                 'url_image' => $validatedData['url_image'] ?? null,
                 'message_type' => $validatedData['message_type'],
                 'height' => $validatedData['height'] ?? null,
@@ -86,7 +91,7 @@ class MessageController extends Controller
 
 
              // send notification
-             $this->sendNotification($receiverId, $message->text, $user->name, $conversation->id);
+             $this->sendNotification($receiverId, $msg, $user->name, $conversation->id);
 
 
              // Broadcast events for real-time updates via Pusher

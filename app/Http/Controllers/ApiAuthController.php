@@ -7,6 +7,7 @@ use App\Mail\LoginEventMail;
 use App\Helper\TokenHelper;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Contracts\Validation\Validator as ValidationValidator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,20 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ApiAuthController extends Controller
 {
+
+    protected array $validationMessages;
+
+    public function __construct()
+    {
+        $this->validationMessages = [
+            'email.required' => __('emailIsRequire'),
+            'email.email' => __('invalidEmail'),
+            'email.unique' => __('alreadyTakenEmail'),
+            'password.required' => __('passwordIsRequired'),
+            'password.confirmed' => __('passwordNotMatch'),
+        ];
+    }
+
     public function register(Request $request)
     {
         try {
@@ -30,10 +45,11 @@ class ApiAuthController extends Controller
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            ]);
+            ],$this->validationMessages);
 
             if ($validateUser->fails()) {
-                return ResponseHelper::error(message: __('failToValidation') . $validateUser->errors());
+                $message = $this->getErrorMessages($validateUser);
+                return ResponseHelper::error(message: $message );
             } else {
                 $user = User::create([
                     'name' => $request->name,
@@ -77,10 +93,11 @@ class ApiAuthController extends Controller
                 'password' => ['required', Rules\Password::defaults()],
                 'device_id' => ['nullable', 'string',],
                 'device_name' => ['nullable', 'string', ],
-            ]);
+            ],$this->validationMessages);
 
             if ($validateUser->fails()) {
-                return ResponseHelper::error(message: __('somethingWentWrongWithMsg') . $validateUser->errors());
+                $message = $this->getErrorMessages($validateUser);
+                return ResponseHelper::error(message: $message );
             }
             // second approach
             $credentials = $request->only('email', 'password');
@@ -306,4 +323,15 @@ class ApiAuthController extends Controller
         }
     }
 
+    // helper
+    public static function getErrorMessages(ValidationValidator $validator): string
+    {
+        $errors = $validator->errors()->toArray();
+
+        // Get the error list (get only the error content)
+        $messages = array_map(fn($error) => $error[0], $errors);
+
+        // Concatenate errors into string
+        return implode(', ', $messages);
+    }
 }

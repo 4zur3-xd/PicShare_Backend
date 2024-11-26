@@ -91,7 +91,13 @@
     "verify2FASuccessfully":"2FA verification successful",
     "2faEnabledSuccessfully":"2FA enabled successfully",
     "2FASetupExpired":"2FA setup expired or not initiated",
-    "continueToCheck2FA":"Continue to check 2fa "
+    "continueToCheck2FA":"Continue to check 2fa ",
+
+    "emailIsRequire":"Email is required.",
+    "invalidEmail": "The email must be a valid email address.",
+    "alreadyTakenEmail": "This email is already taken",
+    "passwordIsRequired":"Password is required.",
+    "passwordNotMatch":"The password confirmation does not match."
 
 
 }
