@@ -9,21 +9,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class LoginEventMail extends Mailable
+class OtpResetEmail extends Mailable
 {
     use Queueable, SerializesModels;
-
-    public $deviceId;
-    public $deviceName;
-
+    public $otp;
+    public $validity;
     /**
      * Create a new message instance.
      */
-    public function __construct($deviceId = null, $deviceName = null)
+    public function __construct($otp,$validity)
     {
-        //
-        $this->deviceId = $deviceId;
-        $this->deviceName = $deviceName;
+        $this->otp = $otp->token;
+        $this->validity = $validity;
     }
 
     /**
@@ -32,7 +29,7 @@ class LoginEventMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Login Event Mail',
+            subject: 'Otp Reset Email',
         );
     }
 
@@ -42,10 +39,10 @@ class LoginEventMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.login.event',
+            markdown: 'mail.reset.email',
             with: [
-                'deviceId' => $this->deviceId,
-                'deviceName' => $this->deviceName
+                'otp' =>  $this->otp,
+                'validity' => $this->validity
             ]
         );
     }

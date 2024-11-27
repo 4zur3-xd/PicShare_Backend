@@ -15,7 +15,7 @@ You just logged in to **{{ config('app.name') }}**.
 
 If you don't recognize this activity, you should change your password immediately using the link below:
 
-<x-mail::button :url="''">
+<x-mail::button :url="'http://192.168.5.248:8000/forgot-password'">
 Reset password
 </x-mail::button>
 

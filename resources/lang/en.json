@@ -97,7 +97,11 @@
     "invalidEmail": "The email must be a valid email address.",
     "alreadyTakenEmail": "This email is already taken",
     "passwordIsRequired":"Password is required.",
-    "passwordNotMatch":"The password confirmation does not match."
+    "passwordNotMatch":"The password confirmation does not match.",
+    "codeIsRequired":"code is required.",
+    "otpSentToYourEmail": "OTP has been sent to your email.",
+    "passwordResetSuccessfully": "Password has been reset successfully.",
+    "invalidOTP":"Invalid OTP"
 
 
 }
