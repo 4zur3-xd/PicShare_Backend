@@ -21,6 +21,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserLogController;
 use App\Http\Middleware\AppLocalization;
 use App\Helper\ResponseHelper;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Middleware\JwtMiddleware;
 
 // user profile
@@ -34,6 +35,9 @@ Route::post('/register', [ApiAuthController::class, 'register'])->middleware([Ap
 Route::post('/login', [ApiAuthController::class, 'login'])->middleware([AppLocalization::class]);
 Route::post('/auth/callback', [ApiGoogleAuthController::class, 'callback']);
 Route::get('/auth/refresh_token', [ApiAuthController::class, 'refreshNewAccessToken']);
+Route::post('/auth/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->name('forgot-password')->middleware([AppLocalization::class]);
+Route::post('/auth/reset-password', [PasswordResetController::class, 'resetPassword'])->name('reset-password')->middleware([AppLocalization::class]);
+
 Route::middleware([JwtMiddleware::class, BanStatusMiddleware::class,AppLocalization::class])->prefix('auth')->group(function(){
     Route::post('update_state_2fa', [ApiAuthController::class, 'toggle2FA']);
     Route::post('verify_2fa', [ApiAuthController::class, 'verify2FA']);

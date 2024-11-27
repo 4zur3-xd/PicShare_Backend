@@ -97,5 +97,9 @@
     "invalidEmail": "Email phải là địa chỉ email hợp lệ.",
     "alreadyTakenEmail": "Email này đã được sử dụng",
     "passwordIsRequired":"Mật khẩu là bắt buộc.",
-    "passwordNotMatch":"Xác nhận mật khẩu không khớp."
+    "passwordNotMatch":"Xác nhận mật khẩu không khớp.",
+    "codeIsRequired":"Mã là trường bắt buộc.",
+    "otpSentToYourEmail": "Mã xác thực đã được gửi tới email của bạn.",
+    "passwordResetSuccessfully": "Mật khẩu đã được đặt lại thành công.",
+    "invalidOTP":"Mã xác thực không hợp lệ"
 }

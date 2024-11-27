@@ -24,7 +24,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class ApiAuthController extends Controller
 {
 
-    protected array $validationMessages;
+    private array $validationMessages;
 
     public function __construct()
     {
