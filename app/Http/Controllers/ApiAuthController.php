@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\JwtHelper;
 use App\Helper\ResponseHelper;
 use App\Mail\LoginEventMail;
 use App\Helper\TokenHelper;
@@ -172,6 +173,12 @@ class ApiAuthController extends Controller
 
             // Check if refresh token is still valid
             if (!JWTAuth::check()) {
+                // delete fcm token if refresh token is expired
+                $userId = JwtHelper::getUserIdFromRefreshToken($refreshToken);
+                if ($userId) {
+                    DB::table('users')->where('id', $userId)->update(['fcm_token' => null]);
+                }
+
                 return ResponseHelper::error(message: __('tokenExpired'), statusCode: 401);
             }
 
