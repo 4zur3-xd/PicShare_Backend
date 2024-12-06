@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
@@ -46,6 +47,8 @@ class ApiAuthController extends Controller
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
+                'device_id' => ['nullable', 'string',],
+                'device_name' => ['nullable', 'string',],
             ],$this->validationMessages);
 
             if ($validateUser->fails()) {
@@ -73,6 +76,11 @@ class ApiAuthController extends Controller
                 $refreshToken = JWTAuth::customClaims([
                     'exp' => now()->addMinutes($refreshTokenTTL)->getTimestamp(),
                 ])->fromUser($user);
+
+                // user tokens
+                JwtHelper::createRefreshToken($refreshToken,$user->id,$request->device_id,$request->device_name); 
+
+                // array to return
                 $userArray = $user->toArray();
                 $userArray['access_token'] = $accessToken;
                 $userArray['refresh_token'] = $refreshToken;
@@ -124,6 +132,7 @@ class ApiAuthController extends Controller
             // if user does not enable 2FA
             if (!$user->google2fa_enable && $user->google2fa_secret === null) {
                 $refreshToken = TokenHelper::generateRefreshToken($user);
+                JwtHelper::createRefreshToken($refreshToken, $user->id, $request->device_id, $request->device_name);
                 $userArray['refresh_token'] = $refreshToken;
                 $message = __('loginSuccessfully');
             }
@@ -142,10 +151,12 @@ class ApiAuthController extends Controller
         }
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         try {
+            $deviceId = $request->header('device_id');
             // auth()->user()->tokens()->delete();
+            JwtHelper::deleteRefreshTokenWithDevice(auth()->user()->id, $deviceId);
             JWTAuth::invalidate(JWTAuth::getToken());
             return ResponseHelper::success(message: __('logoutSuccessfully'));
         } catch (\Throwable $th) {
@@ -168,17 +179,22 @@ class ApiAuthController extends Controller
         }
 
         try {
+            $refreshTokenRecord = JwtHelper::getRefreshTokenFromDb($refreshToken);
+            if (!$refreshTokenRecord) {
+                JwtHelper::deleteRefreshToken($refreshToken);
+                return ResponseHelper::error(message: __('tokenNotValid'), statusCode: 401);
+            }
+
             // Set the current token to the refresh token passed in
             JWTAuth::setToken($refreshToken);
-
             // Check if refresh token is still valid
             if (!JWTAuth::check()) {
                 // delete fcm token if refresh token is expired
-                $userId = JwtHelper::getUserIdFromRefreshToken($refreshToken);
+                $userId = $refreshTokenRecord->user_id;
                 if ($userId) {
                     DB::table('users')->where('id', $userId)->update(['fcm_token' => null]);
+                    JwtHelper::deleteRefreshToken($refreshToken);
                 }
-
                 return ResponseHelper::error(message: __('tokenExpired'), statusCode: 401);
             }
 
@@ -273,6 +289,7 @@ class ApiAuthController extends Controller
             DB::commit();
             if ($isValid) {
                 $refreshToken = TokenHelper::generateRefreshToken($request->user());
+                JwtHelper::createRefreshToken($refreshToken, $request->user()->id, $request->user()->device_id, $request->user()->device_name); 
                 return ResponseHelper::success(message: __('verify2FASuccessfully'),
                     data: [
                         'refresh_token' => $refreshToken,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\JwtHelper;
 use App\Helper\ResponseHelper;
 use App\Mail\OtpResetEmail;
 use App\Models\User;
@@ -63,6 +64,7 @@ class PasswordResetController extends Controller
             $user = User::where('email', $request->email)->first();
             if ($user) {
                 $user->password = Hash::make($request->password);
+                JwtHelper::deleteAllRefreshTokenOfUser($user->id);
                 $user->save();
             }
             DB::commit();
